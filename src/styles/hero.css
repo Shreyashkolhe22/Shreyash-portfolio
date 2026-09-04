@@ -1,0 +1,565 @@
+/* ==========================================================================
+   THE LANDING VIEW + SCROLL STATEMENTS
+   Laid over the warm physical room, so the palette here is warm and neutral —
+   the cool/red digital language belongs to the desktop inside the monitor.
+
+   Nothing animates itself: the cinematic scroll loop writes opacity and
+   transform on [data-from] elements. `.is-gone` is toggled on the crossing so
+   a faded-out hero cannot catch clicks on buttons nobody can see.
+   ========================================================================== */
+
+.hero-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+  --ink: #f6efe6;
+  --ink-dim: #d9cdbf;
+  --serif: 'Cormorant Garamond', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+}
+
+.hero,
+.statement,
+.scroll-guide {
+  position: absolute;
+  inset: 0;
+  will-change: opacity, transform;
+}
+
+/* The room is a warm, bright photograph and the copy is white. Without a grade
+   the role paragraph sits straight on top of the lamp and disappears. Weighted
+   towards the edges where the text actually is, so the centre of the room —
+   the monitor the visitor is being drawn towards — stays clear.
+   It lives inside .hero, so it fades out with everything else. */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(100deg, rgb(6 4 3 / 78%) 0%, rgb(6 4 3 / 42%) 30%,
+                    rgb(6 4 3 / 8%) 52%, rgb(6 4 3 / 0%) 66%),
+    linear-gradient(0deg, rgb(6 4 3 / 70%) 0%, rgb(6 4 3 / 18%) 34%, transparent 52%),
+    linear-gradient(180deg, rgb(6 4 3 / 52%) 0%, transparent 20%),
+    linear-gradient(270deg, rgb(6 4 3 / 40%) 0%, transparent 26%);
+}
+
+/* Only a visible reveal may take pointer events. */
+.hero-layer .is-gone { pointer-events: none !important; visibility: hidden; }
+.hero a,
+.hero button { pointer-events: auto; }
+
+/* Anything magnetic must be hittable, or the cursor can never find it: the
+   layer is pointer-events: none, so a plain <span> target (the word mark) is
+   invisible to hit-testing and the snap silently never fires. */
+.hero [data-magnetic] { pointer-events: auto; }
+
+/* --------------------------------------------------------------------------
+   TOP BAR
+   -------------------------------------------------------------------------- */
+
+/* Trimmed down from an earlier pass that measured out at 112px tall — 12.4%
+   of an 900px viewport, which reads as a heavy banner rather than a nav bar.
+   This version sits closer to the top edge and comes in around 64-70px. */
+.hero-nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px clamp(20px, 2.6vw, 40px);
+}
+
+.hero-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  /* Padding and a radius so the magnetic snap forms a pill around the mark,
+     the way it does on the CTA. Pulled back with negative margins so the
+     visual alignment in the bar is unchanged. */
+  padding: 5px 11px;
+  margin: -5px -11px;
+  border-radius: 999px;
+  font-family: var(--serif);
+  font-size: 16px;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* The separator, drawn rather than typed — see the note in portfolio.js. */
+.hero-brand i {
+  width: 11px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.75;
+  flex: none;
+}
+
+/* Anurati once it has loaded (hooks/useAnurati.js puts the class on :root).
+   `text-transform` matters here: the face has no lowercase at all, but the
+   transform happens before shaping, so "workspace" becomes glyphs it does
+   have. The dash is a CSS rule for the same reason. */
+.anurati-ready .hero-brand {
+  font-family: 'Anurati', var(--serif);
+  font-style: normal;
+  font-size: 12px;
+  letter-spacing: 0.26em;
+  text-indent: 0.26em;
+  text-transform: uppercase;
+  gap: 10px;
+}
+
+.anurati-ready .hero-brand i { width: 13px; opacity: 0.6; }
+
+.hero-rule {
+  width: 1px;
+  height: 24px;
+  background: rgb(255 255 255 / 55%);
+  flex: none;
+}
+
+.hero-links {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  gap: clamp(20px, 3.2vw, 52px);
+}
+
+.hero-links a,
+.hero-links button {
+  font-family: var(--serif);
+  font-size: 15px;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  padding: 2px 0;
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
+  transition: color 180ms ease;
+}
+
+.hero-links a::after,
+.hero-links button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 260ms var(--ease-out);
+}
+
+.hero-links a:hover::after,
+.hero-links button:hover::after { transform: scaleX(1); }
+
+/* Kept at its original size on purpose — it is the primary call to action in
+   the bar, so it stays a size larger than the rest of the (now trimmed) nav
+   rather than shrinking along with it. */
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 9px 9px 9px 26px;
+  border: 1px solid rgb(255 255 255 / 78%);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 18px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 220ms ease, color 220ms ease;
+}
+
+.hero-cta-dot {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  flex: none;
+}
+
+.hero-cta-dot svg { width: 16px; height: 16px; }
+.hero-cta:hover { background: var(--ink); color: #14100c; }
+
+/* --------------------------------------------------------------------------
+   NAME BLOCK
+   -------------------------------------------------------------------------- */
+
+.hero-intro {
+  position: absolute;
+  left: clamp(28px, 6.5vw, 110px);
+  top: 38%;
+  max-width: 44vw;
+}
+
+.hero-greeting {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.hero-tick {
+  width: 1px;
+  height: 26px;
+  background: rgb(255 255 255 / 70%);
+  flex: none;
+}
+
+.hero-name {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: clamp(46px, 6.4vw, 96px);
+  font-weight: 800;
+  line-height: 0.94;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 2px 26px rgb(0 0 0 / 45%);
+}
+
+
+.hero-sub {
+  margin-top: 26px;
+  padding-left: 2px;
+  border-left: 0;
+}
+
+.hero-headline {
+  margin: 0;
+  font-size: clamp(13px, 1.15vw, 17px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.hero-tagline {
+  margin: 4px 0 0;
+  font-size: clamp(13px, 1.15vw, 17px);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   SCROLL LINE + DOTS, right edge
+   Restored as-is. Only the "Scroll to Workspace" text came out of this
+   arrangement — it lives in the bottom-centre cue below now — the line and
+   the three pulsing dots stay exactly where and how they were.
+   -------------------------------------------------------------------------- */
+
+.hero-scroll {
+  position: absolute;
+  right: clamp(22px, 3.2vw, 52px);
+  top: 21%;
+  bottom: 27%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  padding-right: 24px;
+}
+
+.hero-scroll-dots { display: flex; flex-direction: column; gap: 11px; }
+
+/* 3px at 27% opacity was effectively invisible against the room. */
+.hero-scroll-dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ink);
+  opacity: 0.7;
+  animation: hero-dot 1.9s ease-in-out infinite;
+}
+
+.hero-scroll-dots i:nth-child(2) { animation-delay: 0.22s; }
+.hero-scroll-dots i:nth-child(3) { animation-delay: 0.44s; }
+
+@keyframes hero-dot {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* Matches the container exactly, so its length is set in one place. */
+.hero-scroll-line {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgb(255 255 255 / 58%) 9%,
+              rgb(255 255 255 / 58%) 91%, transparent);
+}
+
+/* --------------------------------------------------------------------------
+   SCROLL CUE, bottom centre
+   The "Scroll" label that used to live in the right-edge block above, now
+   paired with a bobbing down-arrow in the conventional bottom-centre spot.
+   Plain text over the photograph — no pill — since it sits low in the frame,
+   clear of both the desk and the role copy in the opposite corner.
+   -------------------------------------------------------------------------- */
+
+.hero-scroll-cue {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(22px, 4vh, 40px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-scroll-cue-label {
+  font-family: var(--serif);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  color: var(--ink);
+  text-shadow: 0 1px 8px rgb(0 0 0 / 55%);
+}
+
+.hero-scroll-cue-arrow {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 12px;
+  color: var(--ink);
+  opacity: 0.85;
+  animation: guide-bob 1.8s ease-in-out infinite;
+}
+
+.hero-scroll-cue-arrow svg { width: 14px; height: 9px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll-cue-arrow { animation: none; }
+  .hero-scroll-dots i { animation: none; opacity: 0.6; }
+}
+
+/* --------------------------------------------------------------------------
+   ROLE BLOCK, lower right
+   -------------------------------------------------------------------------- */
+
+.hero-role {
+  position: absolute;
+  right: clamp(70px, 9vw, 150px);
+  bottom: clamp(28px, 5vh, 60px);
+  width: min(430px, 33vw);
+}
+
+/* This block lands on the lamp and the plant — the busiest, brightest corner
+   of the photograph. It needs more than the global grade. */
+.hero-role::before {
+  content: '';
+  position: absolute;
+  inset: -60px -64px -48px -48px;
+  background: radial-gradient(closest-side at 60% 58%,
+              rgb(6 4 3 / 80%) 0%, rgb(6 4 3 / 62%) 42%,
+              rgb(6 4 3 / 24%) 74%, rgb(6 4 3 / 0%) 100%);
+  pointer-events: none;
+}
+
+.hero-role > * { position: relative; }
+
+.hero-role-title {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(30px, 3.1vw, 46px);
+  font-weight: 500;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 2px 20px rgb(0 0 0 / 45%);
+}
+
+.hero-role-kicker {
+  margin: 8px 0 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.hero-role-body {
+  margin: 16px 0 0;
+  padding: 2px 0 2px 14px;
+  border-left: 1px solid rgb(255 255 255 / 45%);
+  font-size: clamp(12px, 0.95vw, 14px);
+  line-height: 1.65;
+  color: var(--ink-dim);
+}
+
+.hero-enter {
+  margin-top: 18px;
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 2px;
+  background: rgb(28 22 18 / 78%);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  cursor: pointer;
+  transition: background 200ms ease, transform 200ms var(--ease-out);
+}
+
+.hero-enter:hover { background: rgb(40 31 25 / 92%); transform: translateY(-1px); }
+
+/* --------------------------------------------------------------------------
+   SCROLL STATEMENTS
+   Centred, quiet, and out of the monitor's way — the panel sits at roughly
+   32-70% across and 28-68% down, so these sit below it.
+   -------------------------------------------------------------------------- */
+
+/* Bottom-weighted, because that is where the copy sits and where the desk is
+   brightest. The monitor stays clear — it is what the eye is being led to. */
+.statement::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(0deg,
+    rgb(6 4 3 / 84%) 0%, rgb(6 4 3 / 64%) 18%, rgb(6 4 3 / 24%) 34%, transparent 50%);
+}
+
+.statement > * { position: relative; }
+
+.statement {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: clamp(60px, 14vh, 150px);
+  text-align: center;
+  opacity: 0;
+}
+
+.statement-kicker {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgb(246 239 230 / 70%);
+}
+
+.statement-line {
+  margin: 0;
+  max-width: min(760px, 74vw);
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.4vw, 52px);
+  font-weight: 500;
+  line-height: 1.18;
+  color: #fff;
+  text-shadow: 0 2px 30px rgb(0 0 0 / 55%);
+}
+
+/* --------------------------------------------------------------------------
+   SCROLL GUIDE
+   A small pill, not a headline — it is reassurance for the long stretch after
+   the last statement, not a third thing competing with the room for
+   attention. Anchored at the very bottom of the viewport, well clear of the
+   monitor: even fully grown, the panel's bottom edge sits at roughly 68% of
+   frame height, nowhere near this.
+   -------------------------------------------------------------------------- */
+
+.scroll-guide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* flex-end, not center: this box is the FULL overlay height (inset: 0), so
+     centering here puts the pill at viewport mid-height — squarely inside the
+     monitor's own vertical span (top ~28%, bottom ~68%). flex-end anchors it
+     near the bottom edge instead, the way .statement anchors its text. */
+  justify-content: flex-end;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* The reveal engine sets transform on the OUTER (.scroll-guide) element for
+   the rise/fade; this inner wrapper carries the bob, so the two animations
+   never fight over the same transform. Targeting the wrapper by its own class
+   rather than `.scroll-guide > *` matters: the chevron and the text used to be
+   direct siblings, so that selector matched BOTH of them independently and
+   gave each its own separate pill — the chevron rendering as a disconnected
+   box above the message instead of sitting beside it in one row. */
+.scroll-guide-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: clamp(22px, 4.5vh, 40px);
+  padding: 11px 22px 11px 16px;
+  border-radius: 999px;
+  background: rgb(10 7 5 / 62%);
+  border: 1px solid rgb(255 255 255 / 16%);
+  animation: guide-bob 1.8s ease-in-out infinite;
+}
+
+@keyframes guide-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+
+.scroll-guide-chevron {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  color: var(--ink);
+  opacity: 0.85;
+  flex: none;
+}
+
+.scroll-guide-chevron svg { width: 14px; height: 9px; }
+
+.scroll-guide-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.scroll-guide-text strong {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.scroll-guide-text em {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--ink-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-guide-pill { animation: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Narrower laptops: keep the two side blocks from colliding.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .hero-links { gap: 26px; }
+  .hero-links a, .hero-links button, .hero-brand { font-size: 16px; }
+  .hero-intro { max-width: 52vw; top: 34%; }
+  .hero-role { width: min(360px, 40vw); right: clamp(50px, 7vw, 90px); }
+  .hero-scroll { display: none; }
+}
