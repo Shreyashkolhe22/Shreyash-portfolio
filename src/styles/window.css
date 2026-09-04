@@ -1,0 +1,109 @@
+/* ==========================================================================
+   APPLICATION WINDOWS
+   Compact chrome for the 640 x 384 screen: a 22px title bar, 16px controls.
+   ========================================================================== */
+
+.window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 170px;
+  background: var(--os-panel);
+  border: 1px solid var(--os-line);
+  border-radius: 5px;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 4%) inset,
+    0 10px 26px rgb(0 0 0 / 58%);
+  overflow: hidden;
+  animation: win-in 180ms var(--ease-out);
+}
+
+@keyframes win-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.985); }
+}
+
+.window.is-inactive {
+  box-shadow: 0 6px 18px rgb(0 0 0 / 45%);
+  border-color: var(--os-line-soft);
+}
+
+.window.is-inactive .win-title { color: var(--os-text-faint); }
+
+.window.is-minimized {
+  /* Kept mounted so app state survives minimising. */
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px) scale(0.98);
+}
+
+.window.is-maximized { border-radius: 0; }
+
+/* ---- title bar ---------------------------------------------------------- */
+
+.win-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 3px 0 7px;
+  background: var(--os-panel-2);
+  border-bottom: 1px solid var(--os-line-soft);
+  cursor: grab;
+  user-select: none;
+  flex: none;
+}
+
+.win-bar:active { cursor: grabbing; }
+
+.win-bar-icon {
+  display: grid;
+  place-items: center;
+  color: var(--os-accent);
+  opacity: 0.85;
+  flex: none;
+}
+
+.win-bar-icon svg { width: 11px; height: 11px; }
+
+.window.is-inactive .win-bar-icon { color: var(--os-text-faint); opacity: 1; }
+
+.win-title {
+  flex: 1;
+  margin: 0;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+  color: var(--os-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.win-controls { display: flex; gap: 1px; flex: none; }
+
+.win-btn {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 16px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--os-text-dim);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.win-btn svg { width: 9px; height: 9px; }
+
+.win-btn:hover { background: hsl(var(--os-hue) 42% 72% / 16%); color: var(--os-text); }
+.win-btn-close:hover { background: hsl(var(--os-hue) 68% 42%); color: #fff; }
+
+/* ---- body --------------------------------------------------------------- */
+
+.win-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--os-panel);
+}
