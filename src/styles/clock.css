@@ -1,0 +1,64 @@
+/* ==========================================================================
+   DESKTOP DATE / TIME
+   Styled after the reference poster: a wide-tracked day name over the date
+   and the time.
+   ========================================================================== */
+
+.clock {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 0;                 /* behind every window */
+  pointer-events: none;       /* never steals a click from the desktop */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-align: center;
+  color: #f8eef1;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.clock p { margin: 0; }
+
+/* The day name. Anurati is drawn to be set very wide; the fallback stack is a
+   thin geometric sans, which needs less tracking to read correctly — hence the
+   two sets of values rather than one compromise. */
+.clock-day {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 27px;
+  font-weight: 200;
+  line-height: 1;
+  letter-spacing: 0.30em;
+  text-indent: 0.30em;        /* re-centres text that trailing tracking shifts */
+  text-shadow:
+    0 1px 3px rgb(0 0 0 / 85%),
+    0 0 10px rgb(0 0 0 / 65%);
+}
+
+.anurati-ready .clock-day {
+  font-family: 'Anurati', 'Segoe UI', system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 29px;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+}
+
+.clock-date,
+.clock-time {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 8.5px;
+  font-weight: 300;
+  line-height: 1.25;
+  letter-spacing: 0.30em;
+  text-indent: 0.30em;
+  color: #e3d2d7;
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 90%),
+    0 0 6px rgb(0 0 0 / 70%);
+}
+
+.clock-date { margin-top: 4px; }
+.clock-time { opacity: 0.82; }

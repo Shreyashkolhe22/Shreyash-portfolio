@@ -1,0 +1,105 @@
+/* ==========================================================================
+   POWER ON
+   Sits inside .monitor-screen, above the desktop, covering exactly the panel.
+   A ring and a line of text. No scan lines, no flash.
+   There is no power-off screen: leaving simply fades the desktop out.
+   ========================================================================== */
+
+.power {
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.power-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: #0a0507;
+}
+
+/* ---- the loading ring --------------------------------------------------- */
+
+.power-ring {
+  width: 26px;
+  height: 26px;
+  margin-bottom: 12px;
+  border: 2px solid hsl(var(--os-hue) 85% 58% / 16%);
+  border-top-color: var(--os-accent);
+  border-radius: 50%;
+  animation: pw-spin 760ms linear infinite;
+}
+
+@keyframes pw-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- text --------------------------------------------------------------- */
+
+.power-title {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-indent: 0.26em;
+  text-transform: uppercase;
+  color: var(--os-text);
+}
+
+.power-body {
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  color: #9c848b;
+}
+
+/* ==========================================================================
+   BOOT — hold the screen, then hand over to the desktop
+   The fade-out is the last ~9% of each duration, so the ring is still turning
+   right up until the desktop appears rather than freezing early.
+   ========================================================================== */
+
+.power.is-boot .power-screen { animation: pw-hold-out 2600ms linear forwards; }
+.power.is-boot.is-quick .power-screen { animation: pw-hold-out 1200ms linear forwards; }
+
+@keyframes pw-hold-out {
+  0%, 91% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Content fades a beat before the backdrop, so the text never sits on a
+   half-transparent panel with the desktop showing through it. */
+.power.is-boot .power-ring,
+.power.is-boot .power-title,
+.power.is-boot .power-body { animation: pw-content-out 2600ms linear forwards; }
+
+.power.is-boot.is-quick .power-ring,
+.power.is-boot.is-quick .power-title,
+.power.is-boot.is-quick .power-body { animation: pw-content-out 1200ms linear forwards; }
+
+/* The ring keeps spinning while it fades — two animations on one element. */
+.power.is-boot .power-ring { animation: pw-content-out 2600ms linear forwards, pw-spin 760ms linear infinite; }
+.power.is-boot.is-quick .power-ring { animation: pw-content-out 1200ms linear forwards, pw-spin 760ms linear infinite; }
+
+@keyframes pw-content-out {
+  0% { opacity: 0; }
+  6%, 82% { opacity: 1; }
+  93%, 100% { opacity: 0; }
+}
+
+/* ==========================================================================
+   Reduced motion: keep the message and the wait, drop the spin.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .power-ring {
+    animation: none !important;
+    border-top-color: hsl(var(--os-hue) 85% 58% / 55%);
+  }
+  .power.is-boot .power-ring,
+  .power.is-boot.is-quick .power-ring { animation: none !important; }
+}
