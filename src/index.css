@@ -1,0 +1,378 @@
+/* ==========================================================================
+   GLOBALS + THE CINEMATIC LAYER
+   The digital half of the design system lives in styles/desktop.css.
+   ========================================================================== */
+
+:root {
+  /* ---- Monitor screen rectangle -----------------------------------------
+     Fractions of the CLOSE STILL (end-room), which is what the camera comes
+     to rest on. Measured by edge detection on the black panel:
+       end-room.png 3492 x 1972,  panel x 1115..2447,  y 545..1343
+     Adjust these four values alone to re-align the desktop with the monitor.
+     The matching numbers for the wide still live in useCinematicScroll.js.
+     -------------------------------------------------------------------- */
+  --monitor-left: 31.9301%;
+  --monitor-top: 27.6370%;
+  --monitor-width: 38.1729%;
+  --monitor-height: 40.5173%;
+
+  /* Intrinsic aspect of end-room.png (3492 x 1972) — the resting framing. */
+  --frame-ar: 1.77079;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ---- OS palette: red and black ----------------------------------------
+     The accent is sampled from the Batmobile's tail light in the wallpaper.
+     Ignoring the blown-out core (which clips to pink), the dominant unclipped
+     hue is 345 at 78% mean saturation — a crimson, not an orange-red.
+
+     Everything derives from --os-hue, so the whole desktop retunes from that
+     one number. Backgrounds carry a trace of the same hue rather than being
+     neutral grey, which is what stops the red reading as a sticker on top of
+     a cold UI.
+
+     Defined here rather than on .desktop because the boot screen (.power)
+     is a sibling of .desktop, not a child, and would not inherit them.
+     -------------------------------------------------------------------- */
+  --os-hue: 345;
+
+  --os-accent: hsl(var(--os-hue) 85% 58%);
+  --os-accent-hot: hsl(var(--os-hue) 95% 72%);
+  --os-accent-dim: hsl(var(--os-hue) 62% 40%);
+
+  --os-bg: #0a0608;
+  --os-panel: #140d10;
+  --os-panel-2: #1c1216;
+
+  --os-line: hsl(var(--os-hue) 42% 72% / 18%);
+  --os-line-soft: hsl(var(--os-hue) 42% 72% / 9%);
+
+  --os-text: #f2e9ec;
+  --os-text-dim: #b39aa2;
+  --os-text-faint: #806a72;
+
+  /* Kept warm and amber on purpose — it echoes the physical room and gives
+     the red something to sit against instead of a monochrome wash. */
+  --os-warm: #e0a86a;
+}
+
+/* ---------------------------------------------------------------------------
+   ANURATI  —  installed at public/fonts/Anurati-Regular.otf
+   By Emmeran Richard (troisieme-type.com). Not on Google Fonts or any CDN, so
+   it is self-hosted. Free version is licensed for PERSONAL USE ONLY; a
+   commercial project needs Anurati Pro.
+
+   !! GLYPH COVERAGE IS UPPERCASE-ONLY !!
+   The face contains 38 glyphs: A-Z, space, and a handful of symbols
+   (! & + / ~). There are NO DIGITS, no lowercase, and no comma, period,
+   colon or hyphen.
+
+   That is why only .clock-day uses it — day names are pure A-Z. The date and
+   time lines are full of digits and punctuation and MUST stay on the sans
+   stack; putting Anurati on them would silently fall back per character and
+   render as a mix of two typefaces. Same split as the reference poster.
+   --------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Anurati';
+  src:
+    url('/fonts/Anurati-Regular.woff2') format('woff2'),
+    url('/fonts/Anurati-Regular.otf') format('opentype'),
+    url('/fonts/Anurati-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  background: #000;
+}
+
+html {
+  scroll-behavior: auto;
+  /* The page scroll is a camera control, not a document scroll. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  /* Kills the rubber-band at both ends of the track.
+     This MUST live on the root element: unlike `overflow`, this property does
+     not propagate from <body> to the viewport, so declaring it there does
+     nothing for page scrolling. Without it, pushing past either end bounces
+     the document, drags the pinned scene with it, and exposes the black page
+     behind the room. */
+  overscroll-behavior: none;
+}
+html::-webkit-scrollbar { display: none; }
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+}
+
+/* --------------------------------------------------------------------------
+   SCROLL TRACK + PINNED STAGE
+   -------------------------------------------------------------------------- */
+
+.track {
+  position: relative;
+  width: 100%;
+}
+
+.cinematic {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+}
+
+/* Sized to the close still's rendered content box (cover), so the move comes
+   to rest on that picture at exactly its natural size. */
+.scene-frame {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100vw, calc(100vh * var(--frame-ar)));
+  height: max(100vh, calc(100vw / var(--frame-ar)));
+  transform: translate(-50%, -50%);
+}
+
+/* The two room stills. Both are transformed every frame by the scroll hook so
+   that their monitor panels sit on the same rectangle — which is what makes
+   the cross-fade between them invisible. */
+.scene-still {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* The frame already carries the close still's aspect, so `fill` is lossless
+     for it and costs the wide still a 0.4% stretch — below perception, and it
+     keeps both images in one coordinate system. */
+  object-fit: fill;
+  display: block;
+  transform-origin: 50% 50%;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.scene-close {
+  /* Feathered border. Without it the close still's hard rectangular edge is a
+     visible white line during the cross-fade: measured at 24.6 luminance
+     levels, 9.5x the surrounding scene-detail floor, sitting exactly on that
+     edge. The two photographs match to under 1% in the highlights but differ
+     up to 4% in the shadows — a gamma difference, not an offset, which is why
+     spreading the step is the right fix and a brightness filter is not.
+     Feathering drops the ridge to ~2 levels, indistinguishable from scene
+     content. Widths from 4.5% to 14% all measure the same; 6% is the middle.
+     Outside the feather the wide still shows the identical framing, so nothing
+     is lost, and at rest the monitor panel is nowhere near the band. */
+  --feather: 6%;
+
+  opacity: 0;
+  pointer-events: none;
+
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 var(--feather), #000 calc(100% - var(--feather)), transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 var(--feather), #000 calc(100% - var(--feather)), transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 var(--feather), #000 calc(100% - var(--feather)), transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 var(--feather), #000 calc(100% - var(--feather)), transparent 100%);
+  mask-composite: intersect;
+}
+
+/* --------------------------------------------------------------------------
+   MONITOR SCREEN — the gateway
+   Sits inside the physical monitor's black panel and nothing else: no bezel,
+   no stand, no wall, no desk.
+   -------------------------------------------------------------------------- */
+
+.monitor-screen {
+  position: absolute;
+  left: var(--monitor-left);
+  top: var(--monitor-top);
+  width: var(--monitor-width);
+  height: var(--monitor-height);
+  overflow: hidden;
+
+  /* Paints NOTHING, ever.
+     These coordinates describe the panel on the RESTING frame. Earlier in the
+     push-in the camera is further out, so the panel in the picture is smaller
+     and offset — anything drawn here (even an inset shadow, which bleeds
+     inward from this rectangle's edge) lands on the bezel and the wall and
+     reads as a dark outline hugging the monitor. The screen glass therefore
+     lives on .desktop, which is bounded by the real panel and only visible
+     once the camera has arrived. */
+  background: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   LOADING / FAILURE
+   -------------------------------------------------------------------------- */
+
+.scene-loading {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 14px;
+  justify-items: center;
+  background: #07090c;
+  color: #8a9099;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  z-index: 40;
+}
+
+.scene-loading-bar {
+  width: 132px;
+  height: 2px;
+  background: #1c2129;
+  overflow: hidden;
+  position: relative;
+}
+
+.scene-loading-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #c9a267;
+  transform: translateX(-100%);
+  animation: load-sweep 1.15s var(--ease-out) infinite;
+}
+
+@keyframes load-sweep {
+  to { transform: translateX(100%); }
+}
+
+/* --------------------------------------------------------------------------
+   EXIT INTENT METER
+   Appears only once the visitor actively pushes upward on the desktop, so the
+   way out is discoverable without ever being accidental.
+   -------------------------------------------------------------------------- */
+
+.exit-intent {
+  position: fixed;
+  left: 50%;
+  top: 22px;
+  transform: translate(-50%, -8px);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px 7px 12px;
+  border-radius: 999px;
+  background: rgb(12 6 9 / 84%);
+  border: 1px solid hsl(var(--os-hue) 55% 70% / 24%);
+  color: #e0c6ce;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms var(--ease-out), transform 220ms var(--ease-out);
+}
+
+.exit-intent.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.exit-intent-fill {
+  position: relative;
+  width: 58px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 12%);
+  overflow: hidden;
+  flex: none;
+}
+
+.exit-intent-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  background: var(--os-accent);
+  transform: scaleX(var(--intent, 0));
+  transform-origin: left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-loading-bar::after { animation: none; }
+}
+
+/* --------------------------------------------------------------------------
+   NARROW-VIEWPORT STOPGAP
+   The monitor composition needs width; below a small laptop the desktop inside
+   it scales past readability. Plain content instead of a broken experience.
+   -------------------------------------------------------------------------- */
+
+.small-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  padding: 34px 26px;
+  background: var(--os-bg);
+  color: var(--os-text);
+}
+
+.small-eyebrow {
+  margin: 0;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--os-accent);
+}
+
+.small-name { margin: 0; font-size: 27px; font-weight: 600; letter-spacing: -0.015em; }
+
+.small-tagline { margin: 0; color: var(--os-text-dim); line-height: 1.6; font-size: 14px; }
+
+.small-contact {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid hsl(var(--os-hue) 42% 72% / 14%);
+}
+
+.small-contact li {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 0;
+  border-bottom: 1px solid hsl(var(--os-hue) 42% 72% / 9%);
+}
+
+.small-contact span {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--os-text-faint);
+}
+
+.small-contact a { color: var(--os-text); font-size: 14px; }
+.small-contact em { color: var(--os-text-faint); font-size: 14px; font-style: italic; }
+
+.small-note {
+  margin: 4px 0 0;
+  padding: 12px 14px;
+  border-left: 2px solid rgb(224 168 106 / 55%);
+  background: rgb(224 168 106 / 7%);
+  color: #cbb392;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
