@@ -52,8 +52,23 @@ export const END_PANEL = {
  * frames it (~38% of the picture width). Raise it to make the desktop bigger
  * and more readable at the cost of cropping more of the room — 1.4 puts the
  * monitor at roughly 53% of the viewport width, 1.8 at about 69%.
+ *
+ * This is the CEILING, not the value actually used every frame: `measure()`
+ * below scales it down (never up) whenever the panel at this zoom would be
+ * wider than the viewport. On any viewport at least as wide as it is tall —
+ * every desktop and tablet size this site targets — the panel (~38% of a
+ * frame that is itself already viewport-width-or-wider) never gets close to
+ * that limit, so the cap never binds and the effective zoom is exactly this
+ * constant. Only a portrait phone, where the frame is forced far wider than
+ * the screen to cover its height, needs the cap — without it the monitor
+ * (and the desktop inside it) would render wider than the phone and get
+ * clipped by both edges instead of just cropping the room around it.
  */
 export const FINAL_ZOOM = 1;
+
+/** Panel width never exceeds this fraction of the viewport, leaving a hair
+ *  of breathing room instead of landing exactly on the edge. */
+const MAX_PANEL_VW = 0.98;
 
 /**
  * Logical resolution the desktop is authored at.
@@ -127,10 +142,14 @@ export function useCinematicScroll({
     const sc = centreOf(START_PANEL);
     const ec = centreOf(END_PANEL);
 
-    // Total zoom of the move, per axis. These come out at 1.664 and 1.659 —
-    // agreeing to 0.3%, which is what confirms the move is a uniform zoom.
-    const kx = (END_PANEL.width / START_PANEL.width) * FINAL_ZOOM;
-    const ky = (END_PANEL.height / START_PANEL.height) * FINAL_ZOOM;
+    // Total zoom of the move, per axis. Recomputed by measure() below —
+    // never a plain constant — because the effective zoom itself depends on
+    // viewport shape (see MAX_PANEL_VW above). At FINAL_ZOOM these come out
+    // at 1.664 and 1.659, agreeing to 0.3%, which is what confirms the move
+    // is a uniform zoom; the capped case scales both down together, so that
+    // agreement — and the lack of any x/y distortion — holds either way.
+    let kx = END_PANEL.width / START_PANEL.width;
+    let ky = END_PANEL.height / START_PANEL.height;
 
     let frameW = 0;
     let frameH = 0;
@@ -143,17 +162,39 @@ export function useCinematicScroll({
       // transforms, which is a read-after-write thrash and shows up as jank.
       scrollSpan = track.offsetHeight - window.innerHeight;
       if (!frameW || !frameH) return;
+
+      // The frame is always centred on the viewport (it is placed with
+      // left/top: 50% and translate(-50%, -50%)), but the monitor's centre
+      // (ec.x) sits at 0.5102 of the frame, not exactly 0.5 — the panel is
+      // ~1% right of the frame's own middle in the source photo. Invisible
+      // at desktop sizes, where the panel is a third of the viewport with
+      // slack on both sides, but once the panel is nearly as wide as the
+      // viewport that 1% of a very wide frame is real pixels: on a 375px
+      // phone the frame is ~1437px wide, so the offset is ~15px — enough to
+      // push the monitor's right edge (and the taskbar/clock inside it) past
+      // the screen while the naive centred-panel-width cap still says it fits.
+      // Sizing off whichever side is tighter accounts for that.
+      const naturalPanelW = frameW * END_PANEL.width * FINAL_ZOOM;
+      const offsetPx = frameW * (ec.x - 0.5) * FINAL_ZOOM;
+      const maxPanelW = (window.innerWidth - 2 * Math.abs(offsetPx)) * MAX_PANEL_VW;
+      const zoom = naturalPanelW > maxPanelW
+        ? FINAL_ZOOM * (maxPanelW / naturalPanelW)
+        : FINAL_ZOOM;
+
+      kx = (END_PANEL.width / START_PANEL.width) * zoom;
+      ky = (END_PANEL.height / START_PANEL.height) * zoom;
+
       // The desktop is authored at a fixed logical size and scaled onto the
       // panel. The panel only ever hosts it at the END of the move, so this is
       // computed from the final rect and only changes on resize — never during
       // the scroll.
       //
-      // At rest the close still is scaled by FINAL_ZOOM about its own panel
+      // At rest the close still is scaled by `zoom` about its own panel
       // centre, so the panel on screen grows with it while its centre stays
       // put. The overlay rectangle has to follow, or the desktop would spill
-      // over the bezel as soon as FINAL_ZOOM leaves 1.
-      const mw = END_PANEL.width * FINAL_ZOOM;
-      const mh = END_PANEL.height * FINAL_ZOOM;
+      // over the bezel as soon as `zoom` leaves 1.
+      const mw = END_PANEL.width * zoom;
+      const mh = END_PANEL.height * zoom;
       scene.style.setProperty('--monitor-width', `${(mw * 100).toFixed(4)}%`);
       scene.style.setProperty('--monitor-height', `${(mh * 100).toFixed(4)}%`);
       scene.style.setProperty('--monitor-left', `${((ec.x - mw / 2) * 100).toFixed(4)}%`);

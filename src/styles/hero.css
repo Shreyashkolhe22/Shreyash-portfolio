@@ -568,3 +568,105 @@
   .hero-role { width: min(360px, 40vw); right: clamp(50px, 7vw, 90px); }
   .hero-scroll { display: none; }
 }
+
+/* --------------------------------------------------------------------------
+   COMPACT / PORTRAIT (phones, portrait tablets) — same breakpoint App.jsx
+   uses for MIN_WIDTH. The landing view abandons the wide-frame two-corner
+   layout (name upper-left, role lower-right — they need room either side to
+   not collide) for a single centred column, and drops the longest piece of
+   copy (the role paragraph) rather than risk it overflowing a pinned,
+   non-scrolling stage on a short phone. Everything else — the scroll
+   statements, the scroll guide — is already centred/bottom-anchored and
+   needs no change.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 819px) {
+  .hero-nav { padding: 14px 16px; gap: 10px; }
+  .hero-rule,
+  .hero-links { display: none; }
+  .hero-brand { font-size: 14px; }
+  .anurati-ready .hero-brand { font-size: 11px; letter-spacing: 0.22em; }
+  .hero-cta { padding: 6px 6px 6px 14px; gap: 8px; font-size: 12.5px; }
+  .hero-cta-dot { width: 24px; height: 24px; }
+  .hero-cta-dot svg { width: 12px; height: 12px; }
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    padding: 78px 24px 64px;
+  }
+
+  .hero-intro {
+    position: relative;
+    /* The base rule's `top: 38%; left: clamp(...)` were written for
+       `position: absolute` (measured from .hero's corner). Switching to
+       `relative` — needed below so ::before has a positioning context —
+       reinterprets top/left as an OFFSET from this block's normal flex
+       position instead, which silently shoved it ~300px down the column
+       and past .hero-role. Zero them out explicitly rather than rely on
+       them happening not to be set. */
+    top: 0;
+    left: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* Centring this block moved it off the left margin it was tuned for and
+     onto the brightest part of the photo — the lamp shade, dead centre of a
+     portrait crop. Without its own grade "HI, I'M" landed almost invisible,
+     light text on a lit lampshade. Same corner-vignette trick as the
+     (desktop-only) role block above, just centred instead of corner-anchored;
+     `> *` gets `position: relative` for the same reason `.hero-role > *`
+     does — an absolutely-positioned ::before paints in a later stacking step
+     than plain in-flow text, so without it the vignette would sit on top of
+     the copy instead of behind it. */
+  .hero-intro::before {
+    content: '';
+    position: absolute;
+    inset: -22px -28px;
+    background: radial-gradient(closest-side at 50% 38%,
+      rgb(6 4 3 / 68%) 0%, rgb(6 4 3 / 42%) 48%, rgb(6 4 3 / 0%) 100%);
+    pointer-events: none;
+  }
+
+  .hero-intro > * { position: relative; }
+
+  .hero-greeting { justify-content: center; }
+
+  .hero-name {
+    align-items: center;
+    font-size: clamp(36px, 12vw, 56px);
+    line-height: 1;
+  }
+
+  .hero-sub { padding-left: 0; }
+
+  .hero-role {
+    position: static;
+    width: 100%;
+    max-width: 360px;
+    margin-top: 26px;
+  }
+
+  /* The corner-vignette trick only makes sense pinned to an absolute corner
+     of the photo; centred copy sits on the same full-bleed grade `.hero`
+     already paints. */
+  .hero-role::before { display: none; }
+
+  /* The longest block of copy on the page — kept for wide viewports, where
+     there is vertical room to spare, dropped here so the landing never
+     depends on how tall one particular phone happens to be. The same
+     information is a scroll away, in the About app and the statements
+     below. */
+  .hero-role-body { display: none; }
+
+  .hero-enter {
+    margin-top: 22px;
+    width: 100%;
+  }
+
+  .scroll-guide-text { white-space: normal; }
+}

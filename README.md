@@ -471,24 +471,37 @@ Two deliberate exceptions, unrelated to the accent swap:
 
 ## Mobile / narrow-viewport
 
-The cinematic room-to-monitor mechanic is a 16:9 composition driven by mouse
-scroll — the brief for this project was explicit that forcing it into a phone
-viewport would be worse than not having it at all, and to build a real
-fallback later rather than trying to shrink a desk you can't see. Below
-`MIN_WIDTH` (820px, checked in `App.jsx` via `matchMedia`) the whole
-cinematic/desktop tree is swapped for `components/MobileSite.jsx`: a normal
-single-page scrolling site, sourced from the same `data/portfolio.js` used by
-every desktop app, so nothing is maintained twice.
+Phones and portrait tablets get the same cinematic zoom and the same desktop
+OS as a laptop — not a separate site. `useCinematicScroll` drives the camera
+off `window.scrollY`, and a touch drag moves that exactly the way a wheel
+does, so nothing about the scroll engine itself needed to change.
 
-It borrows the desktop's white-on-black identity and the hero's serif/sans
-pairing directly off the `--os-*`/`--serif`/`--sans` tokens already on
-`:root` — no separate palette. Sections: hero (name, tagline, social row),
-about, experience + education timeline, a single-open projects accordion
-(action buttons render as disabled dashed pills when a project has no
-`github`/`demo` link, rather than being omitted), skills (two columns from
-560px up), resume (gated on the same `useResumeAvailable()` HEAD-check the
-desktop's Resume window uses, shared via `hooks/useResumeAvailable.js`), and
-contact. Styling lives in `styles/mobile.css`.
+Two things did:
+
+- **The panel is capped, never let to overflow.** The monitor is a fixed
+  ~38% of a frame that is itself sized to cover the viewport's height — on a
+  landscape/desktop viewport that frame is comfortably wider than the screen,
+  so the panel (and the desktop inside it) sits with room on both sides. On a
+  portrait phone the same frame is forced far wider than the screen just to
+  cover its height, which would make the panel wider than the viewport too —
+  clipping the desktop's edges instead of just cropping the room around it.
+  `measure()` in `useCinematicScroll.js` caps the effective zoom so the panel
+  never exceeds the viewport width (accounting for the monitor sitting very
+  slightly off-centre in the source photo — invisible with room to spare on
+  a laptop, real pixels once the panel is nearly screen-width). The cap only
+  ever binds below roughly a 1.5 height/width ratio, so it is a no-op on
+  every desktop and tablet size this site targets.
+- **The landing view collapses to one centred column.** The wide layout
+  pins the name to the upper-left and the role to the lower-right so they
+  never collide; there is no upper-left/lower-right on a phone. Below 820px
+  (`hero.css`, matching `MIN_WIDTH` in `App.jsx`) `.hero` becomes a single
+  flex column, the longest paragraph is dropped rather than risk overflowing
+  a pinned, non-scrolling stage on a short phone, and the nav sheds its link
+  row down to the brand mark and one CTA.
+
+The desktop OS itself is unchanged — it already scales onto whatever panel
+size `measure()` computes, compact by design, so a smaller panel just means
+a smaller (still fully interactive) desktop rather than a different one.
 
 ---
 
