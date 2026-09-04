@@ -1,26 +1,15 @@
-import { useEffect, useState } from 'react';
 import { profile, resume } from '../data/portfolio';
+import { useResumeAvailable } from '../hooks/useResumeAvailable';
 import { IconDownload } from './Icons';
 
 /**
  * The download button is wired up already; it enables itself the moment the
  * real PDF exists at `resume.file`. Until then it says so plainly rather than
- * handing a recruiter a 404.
+ * handing a recruiter a 404. The availability check itself is shared with the
+ * mobile site — see useResumeAvailable.
  */
 export default function ResumeWindow() {
-  const [available, setAvailable] = useState(null); // null = still checking
-
-  useEffect(() => {
-    let alive = true;
-    fetch(resume.file, { method: 'HEAD' })
-      .then((r) => {
-        // A dev server may answer with index.html for unknown paths.
-        const type = r.headers.get('content-type') ?? '';
-        if (alive) setAvailable(r.ok && !type.includes('text/html'));
-      })
-      .catch(() => { if (alive) setAvailable(false); });
-    return () => { alive = false; };
-  }, []);
+  const available = useResumeAvailable();
 
   return (
     <div className="app app-resume">

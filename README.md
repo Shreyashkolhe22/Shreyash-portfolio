@@ -469,6 +469,29 @@ Two deliberate exceptions, unrelated to the accent swap:
 
 ---
 
+## Mobile / narrow-viewport
+
+The cinematic room-to-monitor mechanic is a 16:9 composition driven by mouse
+scroll — the brief for this project was explicit that forcing it into a phone
+viewport would be worse than not having it at all, and to build a real
+fallback later rather than trying to shrink a desk you can't see. Below
+`MIN_WIDTH` (820px, checked in `App.jsx` via `matchMedia`) the whole
+cinematic/desktop tree is swapped for `components/MobileSite.jsx`: a normal
+single-page scrolling site, sourced from the same `data/portfolio.js` used by
+every desktop app, so nothing is maintained twice.
+
+It borrows the desktop's white-on-black identity and the hero's serif/sans
+pairing directly off the `--os-*`/`--serif`/`--sans` tokens already on
+`:root` — no separate palette. Sections: hero (name, tagline, social row),
+about, experience + education timeline, a single-open projects accordion
+(action buttons render as disabled dashed pills when a project has no
+`github`/`demo` link, rather than being omitted), skills (two columns from
+560px up), resume (gated on the same `useResumeAvailable()` HEAD-check the
+desktop's Resume window uses, shared via `hooks/useResumeAvailable.js`), and
+contact. Styling lives in `styles/mobile.css`.
+
+---
+
 ## Leaving the desktop
 
 Once the desktop is live it is genuinely self-contained: wheel events are

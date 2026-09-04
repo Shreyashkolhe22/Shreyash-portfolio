@@ -3,7 +3,7 @@ import CinematicScene from './components/CinematicScene';
 import Desktop from './components/Desktop';
 import HeroOverlay from './components/HeroOverlay';
 import MagneticCursor from './components/MagneticCursor';
-import SmallScreenNotice from './components/SmallScreenNotice';
+import MobileSite from './components/MobileSite';
 import { SCREEN_OFF_MS } from './components/power';
 import { ensureAnurati } from './hooks/useAnurati';
 import { useCinematicScroll } from './hooks/useCinematicScroll';
@@ -14,6 +14,7 @@ import './styles/hero.css';
 import './styles/power.css';
 import './styles/clock.css';
 import './styles/cursor.css';
+import './styles/mobile.css';
 
 /** Length of the cinematic scroll track. More = slower, more deliberate dolly. */
 const TRACK_VH = 520;
@@ -259,7 +260,7 @@ export default function App() {
   }, []);
 
   // Hooks above always run; only the tree below is swapped out.
-  if (tooNarrow) return <SmallScreenNotice />;
+  if (tooNarrow) return <MobileSite />;
 
   return (
     <>
