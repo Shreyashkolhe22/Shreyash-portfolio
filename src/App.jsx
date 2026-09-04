@@ -3,6 +3,7 @@ import CinematicScene from './components/CinematicScene';
 import Desktop from './components/Desktop';
 import HeroOverlay from './components/HeroOverlay';
 import MagneticCursor from './components/MagneticCursor';
+import MobileSite from './components/MobileSite';
 import { SCREEN_OFF_MS } from './components/power';
 import { ensureAnurati } from './hooks/useAnurati';
 import { useCinematicScroll } from './hooks/useCinematicScroll';
@@ -13,6 +14,7 @@ import './styles/hero.css';
 import './styles/power.css';
 import './styles/clock.css';
 import './styles/cursor.css';
+import './styles/mobile.css';
 
 /** Length of the cinematic scroll track. More = slower, more deliberate dolly. */
 const TRACK_VH = 520;
@@ -26,26 +28,18 @@ const INTENT_DECAY_MS = 700;
 /** Progress the camera pulls back to when leaving the computer. */
 const EXIT_TO = 0.52;
 
-/**
- * Below this, the hero and the desktop switch to compact layouts (hero.css /
- * desktop.css media queries at the same number) and the magnetic cursor —
- * a mouse-only flourish — turns off. The cinematic zoom and the desktop OS
- * itself run the same way above and below it: `useCinematicScroll` reads
- * `window.scrollY`, which a touch drag moves exactly like a wheel does, and
- * it caps how far the camera pushes in so the monitor never renders wider
- * than the viewport (see MAX_PANEL_VW in the hook) instead of clipping.
- */
+/** Below this the monitor composition has no room to be readable. */
 const MIN_WIDTH = 820;
 
 export default function App() {
   // Read once at mount and follow the media query; nothing here runs on scroll.
-  const [isCompact, setIsCompact] = useState(
+  const [tooNarrow, setTooNarrow] = useState(
     () => typeof window !== 'undefined'
       && window.matchMedia(`(max-width: ${MIN_WIDTH - 1}px)`).matches,
   );
   useEffect(() => {
     const mq = window.matchMedia(`(max-width: ${MIN_WIDTH - 1}px)`);
-    const on = (e) => setIsCompact(e.matches);
+    const on = (e) => setTooNarrow(e.matches);
     mq.addEventListener('change', on);
     return () => mq.removeEventListener('change', on);
   }, []);
@@ -70,13 +64,13 @@ export default function App() {
   const controls = useCinematicScroll({
     overlayRef, sceneRef, frameRef, wideRef, closeRef, trackRef,
     onPhaseChange: setMode,
+    enabled: !tooNarrow,
   });
 
-  const desktopLive = mode === 'desktop' && !exiting;
+  const desktopLive = !tooNarrow && mode === 'desktop' && !exiting;
 
-  /** The custom cursor only replaces the native one while it is actually on —
-   *  and never on a compact/touch viewport, which has no real mouse to fake. */
-  const cursorActive = !isCompact && !desktopLive;
+  /** The custom cursor only replaces the native one while it is actually on. */
+  const cursorActive = !tooNarrow && !desktopLive;
 
   /**
    * An app the hero asked for. Bumping `n` re-fires the request even when the
@@ -264,6 +258,9 @@ export default function App() {
     window.history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
   }, []);
+
+  // Hooks above always run; only the tree below is swapped out.
+  if (tooNarrow) return <MobileSite />;
 
   return (
     <>
