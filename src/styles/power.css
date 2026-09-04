@@ -30,7 +30,7 @@
   width: 26px;
   height: 26px;
   margin-bottom: 12px;
-  border: 2px solid hsl(var(--os-hue) 85% 58% / 16%);
+  border: 2px solid hsl(0 0% 58% / 16%);
   border-top-color: var(--os-accent);
   border-radius: 50%;
   animation: pw-spin 760ms linear infinite;
@@ -54,7 +54,7 @@
 .power-body {
   font-size: 8.5px;
   letter-spacing: 0.14em;
-  color: #9c848b;
+  color: #8f8f97;
 }
 
 /* ==========================================================================
@@ -98,7 +98,7 @@
 @media (prefers-reduced-motion: reduce) {
   .power-ring {
     animation: none !important;
-    border-top-color: hsl(var(--os-hue) 85% 58% / 55%);
+    border-top-color: hsl(0 0% 58% / 55%);
   }
   .power.is-boot .power-ring,
   .power.is-boot.is-quick .power-ring { animation: none !important; }

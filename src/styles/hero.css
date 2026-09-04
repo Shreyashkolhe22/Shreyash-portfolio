@@ -13,9 +13,10 @@
   inset: 0;
   z-index: 25;
   pointer-events: none;
+  /* Warm ink for text over the physical room — kept local to the hero, since
+     the mobile site and the desktop both use --os-text instead. */
   --ink: #f6efe6;
   --ink-dim: #d9cdbf;
-  --serif: 'Cormorant Garamond', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
 }
 
 .hero,
@@ -82,9 +83,12 @@
   padding: 5px 11px;
   margin: -5px -11px;
   border-radius: 999px;
-  font-family: var(--serif);
-  font-size: 16px;
-  font-style: italic;
+  /* Sans, matching the nav links and CTA — not the italic serif. The
+     Anurati enhancement below is a deliberate exception: a wordmark is
+     allowed to be a genuine mark, not just body text. */
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 15px;
   letter-spacing: 0.02em;
   color: var(--ink);
   white-space: nowrap;
@@ -131,8 +135,9 @@
 
 .hero-links a,
 .hero-links button {
-  font-family: var(--serif);
-  font-size: 15px;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 14px;
   color: var(--ink);
   background: none;
   border: 0;
@@ -172,8 +177,9 @@
   border-radius: 999px;
   background: transparent;
   color: var(--ink);
-  font-family: var(--serif);
-  font-size: 18px;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 15px;
   cursor: pointer;
   white-space: nowrap;
   transition: background 220ms ease, color 220ms ease;
@@ -558,7 +564,6 @@
 
 @media (max-width: 1180px) {
   .hero-links { gap: 26px; }
-  .hero-links a, .hero-links button, .hero-brand { font-size: 16px; }
   .hero-intro { max-width: 52vw; top: 34%; }
   .hero-role { width: min(360px, 40vw); right: clamp(50px, 7vw, 90px); }
   .hero-scroll { display: none; }

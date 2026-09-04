@@ -437,43 +437,35 @@ suppressed, leaving no pointer at all over the room outside the monitor.
 
 ## The palette
 
-Red and black, and the red is **measured, not chosen**. The accent is sampled
-from the Batmobile's tail light in the wallpaper:
-
-```
-region found      x 58-73%, y 49-94%   (the light bar and its reflection)
-blown-out core    #ffaabf              (clips to pink - discarded)
-dominant hue      345 deg              (unclipped pixels, weighted by saturation)
-mean saturation   78%
-```
-
-The bright core of the lamp clips to pink, so sampling the brightest pixels
-gives the wrong answer. Excluding anything with a channel at 255 and weighting
-the rest by saturation gives **hue 345** — a crimson, not an orange-red.
-
-Every colour derives from one token:
+White on black. The desktop originally ran a red accent sampled from the
+wallpaper's tail light, with every colour driven off one `--os-hue` variable
+at varying saturation/lightness (10 distinct S/L pairs across the codebase).
+Switching to white/grey didn't mean picking new colours by eye — it meant
+mechanically desaturating every one of those 48 occurrences to `hsl(0 0%
+<same lightness>)`, so every hover, border and tint keeps the exact contrast
+relationship it had, just without the hue. Backgrounds and text tokens (which
+carried a slight warm cast alongside the hue-driven colours) were re-picked as
+true neutral greys the same way.
 
 ```css
---os-hue: 345;
---os-accent: hsl(var(--os-hue) 85% 58%);
+--os-accent: hsl(0 0% 92%);
+--os-bg: #09090b;
 ```
-
-Change that number and the whole desktop retunes — accents, borders, hovers,
-the boot ring, the terminal prompt, the exit meter. Backgrounds carry a trace
-of the same hue rather than being neutral grey, which is what stops the red
-reading as a sticker stuck on a cold UI.
 
 The tokens live on `:root` in `index.css`, not on `.desktop`: the boot screen
 is a *sibling* of `.desktop`, not a child, so it could not inherit them.
 
-Two deliberate exceptions:
+Two deliberate exceptions, unrelated to the accent swap:
 
 - **The status dot stays green.** It is semantic, not decorative — it means
-  "open to roles", and a red status dot reads as the opposite.
-- **The room's loading bar and scroll cue stay amber.** They belong to the warm
-  physical half of the experience, which the brief keeps separate from the cool
-  digital half. The app-note accent stays amber for the same reason: it gives
-  the red something to sit against instead of a monochrome wash.
+  "open to roles", and a red (or white) status dot doesn't read the same way.
+- **Terminal error lines stay a warm red/coral** (`.term-err`), for the same
+  reason error states usually survive a move to monochrome — it is a semantic
+  colour, not a brand accent.
+- **The room's loading bar, scroll cue, and the desktop's own app-note callout
+  stay amber.** The room/desktop split (warm physical half, cool digital half)
+  is unrelated to the accent colour, and the app-note amber gives the
+  otherwise-monochrome desktop one warm callout colour rather than a flat wash.
 
 ---
 

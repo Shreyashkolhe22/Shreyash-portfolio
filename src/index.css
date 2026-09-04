@@ -21,38 +21,40 @@
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* ---- OS palette: red and black ----------------------------------------
-     The accent is sampled from the Batmobile's tail light in the wallpaper.
-     Ignoring the blown-out core (which clips to pink), the dominant unclipped
-     hue is 345 at 78% mean saturation — a crimson, not an orange-red.
+  /* Shared type stack: the hero's title/body pairing over the room, the
+     desktop clock, and the mobile site all draw from these two. */
+  --serif: 'Cormorant Garamond', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
 
-     Everything derives from --os-hue, so the whole desktop retunes from that
-     one number. Backgrounds carry a trace of the same hue rather than being
-     neutral grey, which is what stops the red reading as a sticker on top of
-     a cold UI.
+  /* ---- OS palette: white on black ----------------------------------------
+     Was a red accent sampled from the wallpaper's tail light; the whole
+     desktop ran on one --os-hue variable at varying saturation/lightness.
+     Every one of those colours is now desaturated to the same lightness
+     ladder — same contrast relationships, no hue — so the accent is a plain
+     white/light-grey instead. Backgrounds and text are true neutral greys,
+     not a colour with the saturation turned down to near-zero.
 
      Defined here rather than on .desktop because the boot screen (.power)
      is a sibling of .desktop, not a child, and would not inherit them.
      -------------------------------------------------------------------- */
-  --os-hue: 345;
+  --os-accent: hsl(0 0% 92%);
+  --os-accent-hot: hsl(0 0% 100%);
+  --os-accent-dim: hsl(0 0% 62%);
 
-  --os-accent: hsl(var(--os-hue) 85% 58%);
-  --os-accent-hot: hsl(var(--os-hue) 95% 72%);
-  --os-accent-dim: hsl(var(--os-hue) 62% 40%);
+  --os-bg: #09090b;
+  --os-panel: #131316;
+  --os-panel-2: #1b1b1f;
 
-  --os-bg: #0a0608;
-  --os-panel: #140d10;
-  --os-panel-2: #1c1216;
+  --os-line: hsl(0 0% 100% / 16%);
+  --os-line-soft: hsl(0 0% 100% / 8%);
 
-  --os-line: hsl(var(--os-hue) 42% 72% / 18%);
-  --os-line-soft: hsl(var(--os-hue) 42% 72% / 9%);
-
-  --os-text: #f2e9ec;
-  --os-text-dim: #b39aa2;
-  --os-text-faint: #806a72;
+  --os-text: #f1f1f3;
+  --os-text-dim: #a8a8b0;
+  --os-text-faint: #75757e;
 
   /* Kept warm and amber on purpose — it echoes the physical room and gives
-     the red something to sit against instead of a monochrome wash. */
+     the white/grey desktop one warm accent to sit against, rather than a
+     flat monochrome wash. Used only for hint/note callouts. */
   --os-warm: #e0a86a;
 }
 
@@ -275,8 +277,8 @@ body {
   padding: 7px 14px 7px 12px;
   border-radius: 999px;
   background: rgb(12 6 9 / 84%);
-  border: 1px solid hsl(var(--os-hue) 55% 70% / 24%);
-  color: #e0c6ce;
+  border: 1px solid hsl(0 0% 70% / 24%);
+  color: #e7e7ea;
   font-size: 11px;
   letter-spacing: 0.06em;
   opacity: 0;
@@ -313,66 +315,5 @@ body {
   .scene-loading-bar::after { animation: none; }
 }
 
-/* --------------------------------------------------------------------------
-   NARROW-VIEWPORT STOPGAP
-   The monitor composition needs width; below a small laptop the desktop inside
-   it scales past readability. Plain content instead of a broken experience.
-   -------------------------------------------------------------------------- */
-
-.small-screen {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 18px;
-  padding: 34px 26px;
-  background: var(--os-bg);
-  color: var(--os-text);
-}
-
-.small-eyebrow {
-  margin: 0;
-  font-size: 10.5px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--os-accent);
-}
-
-.small-name { margin: 0; font-size: 27px; font-weight: 600; letter-spacing: -0.015em; }
-
-.small-tagline { margin: 0; color: var(--os-text-dim); line-height: 1.6; font-size: 14px; }
-
-.small-contact {
-  margin: 6px 0 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid hsl(var(--os-hue) 42% 72% / 14%);
-}
-
-.small-contact li {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 12px 0;
-  border-bottom: 1px solid hsl(var(--os-hue) 42% 72% / 9%);
-}
-
-.small-contact span {
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--os-text-faint);
-}
-
-.small-contact a { color: var(--os-text); font-size: 14px; }
-.small-contact em { color: var(--os-text-faint); font-size: 14px; font-style: italic; }
-
-.small-note {
-  margin: 4px 0 0;
-  padding: 12px 14px;
-  border-left: 2px solid rgb(224 168 106 / 55%);
-  background: rgb(224 168 106 / 7%);
-  color: #cbb392;
-  font-size: 12.5px;
-  line-height: 1.6;
-}
+/* Narrow-viewport site (phones, portrait tablets) lives in styles/mobile.css
+   as .mobile-site — a full single-page layout, not a stopgap. */

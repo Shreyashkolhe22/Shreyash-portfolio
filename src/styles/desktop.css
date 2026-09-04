@@ -7,9 +7,11 @@
    machine, not a shrunken desktop — the camera rests where the photograph
    frames the monitor rather than pushing further in.
 
-   Red and black. The accent is sampled from the Batmobile tail light in the
-   wallpaper (hue 345). Deliberately not a Windows clone and deliberately not a
-   glassy SaaS dashboard: flat surfaces, one accent, hairline borders.
+   White on black. Was a red accent sampled from the wallpaper's tail light;
+   every colour now runs off the same lightness ladder with the saturation
+   removed, so the accent reads as plain white/light-grey instead. Deliberately
+   not a Windows clone and deliberately not a glassy SaaS dashboard: flat
+   surfaces, one accent, hairline borders.
    ========================================================================== */
 
 .desktop {
@@ -112,8 +114,8 @@
   place-items: center;
   border-radius: 7px;
   background: rgb(18 9 12 / 70%);
-  border: 1px solid hsl(var(--os-hue) 50% 72% / 22%);
-  color: #e9ccd4;
+  border: 1px solid hsl(0 0% 72% / 22%);
+  color: #e8e8eb;
   transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
 }
 
@@ -132,19 +134,19 @@
 }
 
 .desktop-icon:hover {
-  background: hsl(var(--os-hue) 85% 58% / 10%);
-  border-color: hsl(var(--os-hue) 85% 58% / 20%);
+  background: hsl(0 0% 58% / 10%);
+  border-color: hsl(0 0% 58% / 20%);
 }
 
 .desktop-icon:hover .desktop-icon-glyph {
   color: var(--os-accent);
-  border-color: hsl(var(--os-hue) 85% 58% / 48%);
-  background: rgb(34 13 20 / 82%);
+  border-color: hsl(0 0% 58% / 48%);
+  background: rgb(28 28 32 / 82%);
 }
 
 .desktop-icon.is-selected {
-  background: hsl(var(--os-hue) 85% 58% / 17%);
-  border-color: hsl(var(--os-hue) 85% 58% / 36%);
+  background: hsl(0 0% 58% / 17%);
+  border-color: hsl(0 0% 58% / 36%);
 }
 
 .desktop-icon:focus-visible { outline: 1px solid var(--os-accent); outline-offset: 1px; }
@@ -191,11 +193,11 @@
 
 .start-btn:hover,
 .quick-btn:hover,
-.task-item:hover { background: hsl(var(--os-hue) 85% 58% / 11%); color: var(--os-text); }
+.task-item:hover { background: hsl(0 0% 58% / 11%); color: var(--os-text); }
 
 .start-btn.is-open {
-  background: hsl(var(--os-hue) 85% 58% / 17%);
-  border-color: hsl(var(--os-hue) 85% 58% / 32%);
+  background: hsl(0 0% 58% / 17%);
+  border-color: hsl(0 0% 58% / 32%);
   color: #fff;
 }
 
@@ -224,7 +226,7 @@
 .task-item span { overflow: hidden; text-overflow: ellipsis; }
 
 .task-item.is-active {
-  background: hsl(var(--os-hue) 85% 58% / 14%);
+  background: hsl(0 0% 58% / 14%);
   border-bottom-color: var(--os-accent);
   color: var(--os-text);
 }
@@ -253,7 +255,7 @@
 }
 
 .tray-exit { cursor: pointer; transition: background 130ms ease, color 130ms ease; }
-.tray-exit:hover { background: hsl(var(--os-hue) 80% 55% / 20%); color: hsl(var(--os-hue) 90% 74%); }
+.tray-exit:hover { background: hsl(0 0% 55% / 20%); color: hsl(0 0% 74%); }
 
 .tray-clock {
   display: flex;
@@ -345,7 +347,7 @@
 }
 
 .start-item svg { width: 13px; height: 13px; flex: none; }
-.start-item:hover { background: hsl(var(--os-hue) 85% 58% / 13%); color: var(--os-text); }
+.start-item:hover { background: hsl(0 0% 58% / 13%); color: var(--os-text); }
 
 .start-empty { padding: 7px; color: var(--os-text-faint); font-size: 10px; }
 
@@ -365,8 +367,8 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: linear-gradient(140deg, #4d1727, #1d0d12);
-  border: 1px solid hsl(var(--os-hue) 85% 58% / 28%);
+  background: linear-gradient(140deg, #35353b, #16161a);
+  border: 1px solid hsl(0 0% 58% / 28%);
   color: var(--os-accent);
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -398,15 +400,15 @@
 }
 
 .start-icon-btn svg { width: 13px; height: 13px; }
-.start-icon-btn:hover { background: hsl(var(--os-hue) 85% 58% / 13%); color: var(--os-text); }
+.start-icon-btn:hover { background: hsl(0 0% 58% / 13%); color: var(--os-text); }
 
 /* ---- scrollbars inside the OS ------------------------------------------- */
 
 .desktop *::-webkit-scrollbar { width: 6px; height: 6px; }
 .desktop *::-webkit-scrollbar-track { background: transparent; }
 .desktop *::-webkit-scrollbar-thumb {
-  background: hsl(var(--os-hue) 42% 70% / 26%);
+  background: hsl(0 0% 70% / 26%);
   border-radius: 3px;
 }
-.desktop *::-webkit-scrollbar-thumb:hover { background: hsl(var(--os-hue) 42% 70% / 42%); }
-.desktop * { scrollbar-width: thin; scrollbar-color: hsl(var(--os-hue) 42% 70% / 28%) transparent; }
+.desktop *::-webkit-scrollbar-thumb:hover { background: hsl(0 0% 70% / 42%); }
+.desktop * { scrollbar-width: thin; scrollbar-color: hsl(0 0% 70% / 28%) transparent; }

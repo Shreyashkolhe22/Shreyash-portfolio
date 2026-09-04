@@ -96,8 +96,8 @@
 
 .win-btn svg { width: 9px; height: 9px; }
 
-.win-btn:hover { background: hsl(var(--os-hue) 42% 72% / 16%); color: var(--os-text); }
-.win-btn-close:hover { background: hsl(var(--os-hue) 68% 42%); color: #fff; }
+.win-btn:hover { background: hsl(0 0% 72% / 16%); color: var(--os-text); }
+.win-btn-close:hover { background: hsl(0 0% 42%); color: #fff; }
 
 /* ---- body --------------------------------------------------------------- */
 
