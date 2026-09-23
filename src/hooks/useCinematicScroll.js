@@ -50,18 +50,19 @@ export const END_PANEL = {
  *
  * 1 = stop exactly at end-room.png, with the monitor at the size that image
  * frames it (~38% of the picture width). Raise it to make the desktop bigger
- * and more readable at the cost of cropping more of the room — 1.4 puts the
- * monitor at roughly 53% of the viewport width, 1.8 at about 69%.
+ * and more readable at the cost of cropping more of the room — 1.2 puts the
+ * monitor at roughly 48% of the viewport width, 1.4 at about 53%, 1.8 at 69%.
  */
-export const FINAL_ZOOM = 1;
+export const FINAL_ZOOM = 1.2;
 
 /**
  * Logical resolution the desktop is authored at.
  *
- * Deliberately small. FINAL_ZOOM is 1, so the panel is only ~608x365 CSS px on
- * a 1440x900 viewport; authoring at 640x384 means the desktop renders at very
- * close to 1:1 there rather than being squeezed down, which keeps text legible
- * and edges crisp. 640x384 is 5:3 — the measured aspect of the black panel.
+ * Deliberately small. At FINAL_ZOOM 1.2 the panel is ~730x438 CSS px on a
+ * 1440x900 viewport; authoring at 640x384 means the desktop renders slightly
+ * larger than 1:1 there rather than being squeezed down, which keeps text
+ * legible and edges crisp. 640x384 is 5:3 — the measured aspect of the black
+ * panel.
  */
 export const OS_W = 640;
 export const OS_H = 384;

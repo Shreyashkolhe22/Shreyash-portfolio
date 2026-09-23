@@ -113,7 +113,7 @@ exactly the moment the blend starts.
 
 ```js
 // src/hooks/useCinematicScroll.js
-export const FINAL_ZOOM = 1;
+export const FINAL_ZOOM = 1.2;
 ```
 
 `1` stops exactly on `end-room`, framing the monitor as that photograph does.
@@ -121,7 +121,8 @@ Raising it keeps pushing in past the still. Measured on a 1440×900 viewport:
 
 | FINAL_ZOOM | Monitor on screen (1440×900) | Viewport fill |
 |---|---|---|
-| **1.0** (current) | 608 × 365 | 42% |
+| 1.0 | 608 × 365 | 42% |
+| **1.2** (current) | 730 × 438 | 48% |
 | 1.35 | 821 × 492 | 57% |
 | 1.7 | 1034 × 620 | 72% |
 
@@ -129,9 +130,11 @@ This is a single knob: the overlay rectangle, the desktop scale and both stills'
 transforms all follow it. Past about 1.4 the close still starts being upscaled,
 so the room softens.
 
-The project sits at **1.0** — the camera stops exactly where the photograph
-frames the monitor, keeping the desk, posters and keyboard in shot. The desktop
-is designed around that decision rather than fighting it; see below.
+The project sits at **1.2** — a small step past where `end-room` itself frames
+the monitor, just enough that the icon labels, taskbar clock and window text
+render clearly instead of at the photograph's native (fairly small) crop, while
+the desk, posters and keyboard stay in shot. The desktop is designed around
+that decision rather than fighting it; see below.
 
 ### Two things that are easy to get wrong here
 
