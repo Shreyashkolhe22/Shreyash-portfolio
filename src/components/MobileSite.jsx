@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   coreTech, contact, education, experience, hero,
   profile, projects, resume, skills,
@@ -47,14 +47,27 @@ const LAPTOP_NOTICE_KEY = 'sk-laptop-notice-dismissed';
 
 /**
  * The room-to-monitor mechanic and the desktop OS inside it only exist on a
- * laptop — this is the one place that says so, once, before anything else on
- * the page. Dismissal is remembered so a visitor who already knows doesn't
- * see it again on a later visit.
+ * laptop — this is the one place that says so, before anything else on the
+ * page is usable. A translucent card over a blurred backdrop, not a full
+ * takeover: the mobile site is a real fallback, not an apology, so "Continue
+ * on mobile" is offered right alongside the suggestion to switch.
+ *
+ * Dismissal is remembered so a visitor who already knows doesn't see it
+ * again on a later visit. Body scroll is locked while it is up so the page
+ * underneath can't be scrolled through the backdrop.
  */
 function LaptopNotice() {
   const [dismissed, setDismissed] = useState(() => {
     try { return localStorage.getItem(LAPTOP_NOTICE_KEY) === '1'; } catch { return false; }
   });
+
+  useEffect(() => {
+    if (dismissed) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [dismissed]);
+
   if (dismissed) return null;
 
   const dismiss = () => {
@@ -63,16 +76,18 @@ function LaptopNotice() {
   };
 
   return (
-    <div className="m-laptop-notice" role="note">
-      <p>
-        For the full experience, switch to a laptop — that's where you can
-        walk into my interactive desktop. This is the plain version.
-      </p>
-      <button type="button" className="m-laptop-notice-dismiss" onClick={dismiss} aria-label="Dismiss">
-        <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
-          <path d="m3.2 3.2 5.6 5.6M8.8 3.2 3.2 8.8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-        </svg>
-      </button>
+    <div className="m-laptop-overlay" role="dialog" aria-modal="true" aria-label="Best viewed on a laptop">
+      <div className="m-laptop-card">
+        <p className="m-laptop-title">Switch to a laptop</p>
+        <p className="m-laptop-body">
+          This portfolio is built around an interactive desktop that only
+          fits a laptop-sized screen — scroll in, and the whole thing wakes
+          up inside a monitor. On mobile you get the plain version below.
+        </p>
+        <button type="button" className="m-btn m-btn-primary m-btn-block" onClick={dismiss}>
+          Continue on mobile
+        </button>
+      </div>
     </div>
   );
 }

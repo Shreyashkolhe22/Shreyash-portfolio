@@ -21,43 +21,58 @@
 .mobile-site :is(h1, h2, h3) { margin: 0; }
 
 /* ---- laptop notice ---------------------------------------------------------
-   The same amber used for the desktop's .app-note callouts — a hint, not an
-   error or a blocker. Sits above the sticky top bar so it is the first thing
-   read, but scrolls away normally rather than pinning a permanent banner. */
+   A translucent card over a blurred backdrop, up before anything else is
+   interactive. Not a full takeover: "Continue on mobile" sits right next to
+   the suggestion to switch, because the mobile site is a real fallback. */
 
-.m-laptop-notice {
+.m-laptop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 11px 16px;
-  border-bottom: 1px solid rgb(224 168 106 / 22%);
-  background: rgb(224 168 106 / 7%);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(5 5 6 / 55%);
+  backdrop-filter: blur(3px);
+  animation: m-laptop-fade 260ms ease both;
 }
 
-.m-laptop-notice p {
-  margin: 0;
-  flex: 1;
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: #cbb392;
+.m-laptop-card {
+  width: 100%;
+  max-width: 360px;
+  padding: 24px 22px;
+  border-radius: 16px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  background: rgb(255 255 255 / 7%);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 20px 60px rgb(0 0 0 / 45%);
+  text-align: center;
 }
 
-.m-laptop-notice-dismiss {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  margin-top: 1px;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: #cbb392;
-  opacity: 0.75;
-  cursor: pointer;
+.m-laptop-title {
+  margin: 0 0 8px;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
 }
 
-.m-laptop-notice-dismiss:hover { opacity: 1; background: rgb(224 168 106 / 12%); }
+.m-laptop-body {
+  margin: 0 0 18px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--os-text-dim);
+}
+
+@keyframes m-laptop-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m-laptop-overlay { animation: none; }
+}
 
 /* ---- top bar -------------------------------------------------------------- */
 
