@@ -45,27 +45,16 @@
 
 .desktop.is-live { opacity: 1; }
 
-/* Screen glass + bezel. Lives here rather than on .monitor-screen so it is
-   bounded by the panel that is actually on screen — on .monitor-screen it
-   would bleed over the bezel during the push-in.
-
-   Without the three inset rings the desktop content ran edge-to-edge with the
-   monitor panel's own photographed bounds, which read as a borderless
-   rectangle floating in the room rather than a screen inside a monitor. Plain
-   black did not read against the panel's own near-black photograph — the
-   bezel needed a colour of its own, not just a shape, so it is a warm
-   graphite rather than another shade of black. The hairline above it is the
-   glass catching a little light, the way a real panel's edge does. */
+/* Screen glass. Lives here rather than on .monitor-screen so it is bounded by
+   the panel that is actually on screen — on .monitor-screen it would bleed
+   over the bezel during the push-in. */
 .desktop::after {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 900;
   pointer-events: none;
-  box-shadow:
-    inset 0 0 0 8px #201d1f,
-    inset 0 0 0 9px rgb(255 255 255 / 16%),
-    inset 0 0 30px rgb(0 0 0 / 55%);
+  box-shadow: inset 0 0 30px rgb(0 0 0 / 55%);
 }
 
 /* ---- wallpaper ---------------------------------------------------------- */
