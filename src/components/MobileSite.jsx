@@ -27,6 +27,7 @@ import {
 export default function MobileSite() {
   return (
     <div className="mobile-site">
+      <LaptopNotice />
       <TopBar />
       <Hero />
       <About />
@@ -41,6 +42,40 @@ export default function MobileSite() {
 }
 
 /* -------------------------------------------------------------------------- */
+
+const LAPTOP_NOTICE_KEY = 'sk-laptop-notice-dismissed';
+
+/**
+ * The room-to-monitor mechanic and the desktop OS inside it only exist on a
+ * laptop — this is the one place that says so, once, before anything else on
+ * the page. Dismissal is remembered so a visitor who already knows doesn't
+ * see it again on a later visit.
+ */
+function LaptopNotice() {
+  const [dismissed, setDismissed] = useState(() => {
+    try { return localStorage.getItem(LAPTOP_NOTICE_KEY) === '1'; } catch { return false; }
+  });
+  if (dismissed) return null;
+
+  const dismiss = () => {
+    setDismissed(true);
+    try { localStorage.setItem(LAPTOP_NOTICE_KEY, '1'); } catch { /* private mode */ }
+  };
+
+  return (
+    <div className="m-laptop-notice" role="note">
+      <p>
+        For the full experience, switch to a laptop — that's where you can
+        walk into my interactive desktop. This is the plain version.
+      </p>
+      <button type="button" className="m-laptop-notice-dismiss" onClick={dismiss} aria-label="Dismiss">
+        <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+          <path d="m3.2 3.2 5.6 5.6M8.8 3.2 3.2 8.8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+        </svg>
+      </button>
+    </div>
+  );
+}
 
 function TopBar() {
   const available = useResumeAvailable();
