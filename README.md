@@ -485,13 +485,22 @@ every desktop app, so nothing is maintained twice.
 
 It borrows the desktop's white-on-black identity and the hero's serif/sans
 pairing directly off the `--os-*`/`--serif`/`--sans` tokens already on
-`:root` — no separate palette. Sections: hero (name, tagline, social row),
-about, experience + education timeline, a single-open projects accordion
-(action buttons render as disabled dashed pills when a project has no
-`github`/`demo` link, rather than being omitted), skills (two columns from
-560px up), resume (gated on the same `useResumeAvailable()` HEAD-check the
-desktop's Resume window uses, shared via `hooks/useResumeAvailable.js`), and
-contact. Styling lives in `styles/mobile.css`.
+`:root` — no separate palette. A translucent card over a blurred backdrop
+opens first ("Switch to a laptop" / "Continue on mobile"), dismissal
+remembered via `localStorage` so a repeat visitor isn't stopped twice.
+
+The layout and type below it follow an editorial dark-portfolio reference:
+a stacked status/location meta row, a justified intro paragraph, a big
+name/role block with triangle bullets, `"LABEL ▸"` section heads, a flowing
+skills line (`coreTech` joined with em dashes, set large), and full-bleed
+project cards (a CSS gradient thumbnail per card — there is no screenshot
+asset — with `PROJECT /0N` + category, then name, summary, and an
+expand-in-place detail panel; action buttons render as disabled dashed pills
+when a project has no `github`/`demo` link, rather than being omitted).
+Experience, education, and résumé highlights follow the same timeline/label
+treatment. A closing contact card mirrors the reference's "let's build
+something together" panel, with a live Asia/Kolkata local-time readout.
+Styling lives in `styles/mobile.css`.
 
 ---
 

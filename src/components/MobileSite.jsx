@@ -1,41 +1,42 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   coreTech, contact, education, experience, hero,
-  profile, projects, resume, skills,
+  profile, projects, resume,
 } from '../data/portfolio';
 import { useResumeAvailable } from '../hooks/useResumeAvailable';
-import {
-  IconAbout, IconContact, IconDownload, IconEducation,
-  IconGithub, IconLink, IconProjects, IconSkills,
-} from './Icons';
+import { IconGithub, IconLink } from './Icons';
 
 /**
  * The mobile / narrow-viewport site.
  *
  * The cinematic room-to-monitor mechanic is a 16:9, mouse-and-scroll-wheel
- * composition — the brief that shaped it was explicit that forcing it into a
- * phone viewport is worse than not having it, and to build a real fallback as
- * a later pass rather than trying to replicate a desk you can't see. This is
- * that pass: the same content, same data file, as a normal single-page
- * mobile site instead of a "come back on a laptop" placeholder.
+ * composition — forcing it into a phone viewport is worse than not having it
+ * at all, so this is a real, separately-designed fallback rather than a
+ * shrunken version of the desktop. Same content, same data file.
  *
- * Visually it borrows the desktop's white-on-black identity (the mobile
- * visitor never sees the warm physical room at all, so there is no
- * warm/cool split to preserve here) with the same serif/sans pairing the
- * desktop hero already uses.
+ * The layout and type system here follow an editorial dark-portfolio
+ * reference the visitor asked to match: a stacked meta row, a justified
+ * intro paragraph, a big name/role block with triangle bullets, section
+ * labels with a trailing arrow, a flowing skills line, and full-bleed
+ * project cards. Colours stay on the site's own --os-* tokens rather than
+ * the reference's exact grey, so the mobile site and the desktop OS still
+ * read as one identity.
  */
 export default function MobileSite() {
   return (
-    <div className="mobile-site">
+    <div className="mobile-site m2">
       <LaptopNotice />
       <TopBar />
       <Hero />
       <About />
-      <ExperienceEducation />
+      <Identity />
+      <SkillsFlow />
+      <Experience />
+      <Education />
+      <Highlights />
       <Projects />
-      <Skills />
-      <Resume />
-      <Contact />
+      <ResumeCta />
+      <ContactCard />
       <Footer />
     </div>
   );
@@ -49,12 +50,8 @@ const LAPTOP_NOTICE_KEY = 'sk-laptop-notice-dismissed';
  * The room-to-monitor mechanic and the desktop OS inside it only exist on a
  * laptop — this is the one place that says so, before anything else on the
  * page is usable. A translucent card over a blurred backdrop, not a full
- * takeover: the mobile site is a real fallback, not an apology, so "Continue
- * on mobile" is offered right alongside the suggestion to switch.
- *
- * Dismissal is remembered so a visitor who already knows doesn't see it
- * again on a later visit. Body scroll is locked while it is up so the page
- * underneath can't be scrolled through the backdrop.
+ * takeover: "Continue on mobile" sits right alongside the suggestion to
+ * switch, because the mobile site is a real fallback, not an apology.
  */
 function LaptopNotice() {
   const [dismissed, setDismissed] = useState(() => {
@@ -95,35 +92,38 @@ function LaptopNotice() {
 function TopBar() {
   const available = useResumeAvailable();
   return (
-    <header className="m-topbar">
-      <span className="m-brand">
-        <span>{hero.brandMark}</span>
-        <i aria-hidden="true" />
-        <span>{hero.brandWord}</span>
-      </span>
-      {available && (
-        <a className="m-topbar-resume" href={resume.file} download={resume.fileName} aria-label="Download resume">
-          <IconDownload width="16" height="16" />
-        </a>
-      )}
+    <header className="m2-topbar">
+      <span className="m2-mark" aria-hidden="true">{hero.brandMark}</span>
+      <nav className="m2-topnav">
+        <a href="#projects">Work</a>
+        {available ? (
+          <a href={resume.file} download={resume.fileName}>Résumé</a>
+        ) : (
+          <a href="#resume">Résumé</a>
+        )}
+        <a href="#contact">Email me</a>
+      </nav>
     </header>
   );
 }
 
 function Hero() {
   return (
-    <section className="m-hero">
-      <p className="m-eyebrow">{hero.greeting}</p>
-      <h1 className="m-name">{profile.name}</h1>
-      <p className="m-role">{profile.role}</p>
-      <p className="m-tagline">{profile.tagline}</p>
+    <section className="m2-hero">
+      <div className="m2-meta-row">
+        <span>{profile.status.replace('Open to ', '').replace(' roles', '')}</span>
+        <span>{profile.location.split(',')[0]}</span>
+      </div>
 
-      <div className="m-cta-row">
-        <a className="m-btn m-btn-primary" href="#contact">{hero.navCta}</a>
-        <a className="m-btn" href="#resume">Resume</a>
+      <p className="m2-intro">{profile.intro[0]}</p>
+
+      <div className="m2-name-block">
+        <h1 className="m2-name">{profile.name}</h1>
+        <p className="m2-role"><i>▴</i>{profile.role}<i>▴</i></p>
       </div>
 
       <SocialRow />
+      <ScrollHint />
     </section>
   );
 }
@@ -131,67 +131,84 @@ function Hero() {
 function SocialRow() {
   const rows = contact.filter((c) => c.href);
   if (!rows.length) return null;
-  const icon = { github: IconGithub, linkedin: IconLink, email: IconContact };
   return (
-    <div className="m-social-row">
-      {rows.map((c) => {
-        const Icon = icon[c.id] ?? IconLink;
-        return (
-          <a key={c.id} className="m-social" href={c.href} target="_blank" rel="noreferrer noopener" aria-label={c.label}>
-            <Icon width="18" height="18" />
-          </a>
-        );
-      })}
+    <nav className="m2-social-row">
+      {rows.map((c) => (
+        <a key={c.id} href={c.href} target="_blank" rel="noreferrer noopener">{c.label}</a>
+      ))}
+    </nav>
+  );
+}
+
+/** Decorative scroll indicator — a thin track that fills with page progress. */
+function ScrollHint() {
+  const fillRef = useRef(null);
+  useEffect(() => {
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const p = max > 0 ? window.scrollY / max : 0;
+      if (fillRef.current) fillRef.current.style.transform = `scaleX(${Math.min(1, Math.max(0, p))})`;
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return (
+    <div className="m2-scroll-hint" aria-hidden="true">
+      <span className="m2-scroll-hint-fill" ref={fillRef} />
     </div>
   );
 }
 
+function SectionLabel({ children }) {
+  return <p className="m2-label">{children} <i>▸</i></p>;
+}
+
 function About() {
   return (
-    <section className="m-section" id="about">
-      <SectionHead icon={IconAbout} title="About" />
-      {profile.intro.map((para, i) => <p key={`intro-${i}`} className="m-para">{para}</p>)}
-      <ul className="m-chips">
-        {coreTech.map((t) => <li key={t} className="m-chip">{t}</li>)}
+    <section className="m2-section" id="about">
+      <SectionLabel>About</SectionLabel>
+      {profile.intro.slice(1).map((para, i) => <p key={`about-${i}`} className="m2-justify">{para}</p>)}
+      <ul className="m2-tags">
+        {coreTech.map((t) => <li key={t}>{t}</li>)}
       </ul>
     </section>
   );
 }
 
-function ExperienceEducation() {
+/** Stands in for a portrait: no photo asset exists, so a monogram panel
+ *  carries the same weight and rhythm in the layout without faking one. */
+function Identity() {
   return (
-    <section className="m-section" id="experience">
-      {experience.length > 0 && (
-        <>
-          <SectionHead icon={IconEducation} title="Experience" />
-          <ol className="m-timeline">
-            {experience.map((e) => (
-              <li key={e.id} className="m-timeline-item">
-                <span className="m-timeline-dot" aria-hidden="true" />
-                <p className="m-timeline-period">{e.period}</p>
-                <h3 className="m-timeline-title">{e.role}</h3>
-                <p className="m-timeline-org">{e.org}</p>
-                {e.detail?.length > 0 && (
-                  <ul className="m-bullets">
-                    {e.detail.map((d, i) => <li key={i}>{d}</li>)}
-                  </ul>
-                )}
-              </li>
-            ))}
-          </ol>
-        </>
-      )}
+    <div className="m2-identity" aria-hidden="true">
+      <span>{hero.brandMark}</span>
+    </div>
+  );
+}
 
-      <SectionHead icon={IconEducation} title="Education" />
-      <ol className="m-timeline">
-        {education.map((e) => (
-          <li key={e.id} className="m-timeline-item">
-            <span className="m-timeline-dot" aria-hidden="true" />
-            <p className="m-timeline-period">{e.period}</p>
-            <h3 className="m-timeline-title">{e.credential}</h3>
-            <p className="m-timeline-org">{e.institution}</p>
+function SkillsFlow() {
+  const line = [...new Set(coreTech)].join(' — ');
+  return (
+    <section className="m2-section" id="skills">
+      <SectionLabel>Skills</SectionLabel>
+      <p className="m2-flow">{line}.</p>
+    </section>
+  );
+}
+
+function Experience() {
+  if (!experience.length) return null;
+  return (
+    <section className="m2-section" id="experience">
+      <SectionLabel>Experience</SectionLabel>
+      <ol className="m2-timeline">
+        {experience.map((e) => (
+          <li key={e.id}>
+            <p className="m2-tl-period">{e.period}</p>
+            <p className="m2-tl-title">{e.role}</p>
+            <p className="m2-tl-org">{e.org}</p>
             {e.detail?.length > 0 && (
-              <ul className="m-bullets">
+              <ul className="m2-tl-detail">
                 {e.detail.map((d, i) => <li key={i}>{d}</li>)}
               </ul>
             )}
@@ -202,41 +219,99 @@ function ExperienceEducation() {
   );
 }
 
-function Projects() {
-  const [openId, setOpenId] = useState(projects[0]?.id ?? null);
+function Education() {
   return (
-    <section className="m-section" id="projects">
-      <SectionHead icon={IconProjects} title="Projects" />
-      <ul className="m-project-list">
-        {projects.map((p) => {
+    <section className="m2-section" id="education">
+      <SectionLabel>Education</SectionLabel>
+      <ol className="m2-timeline">
+        {education.map((e) => (
+          <li key={e.id}>
+            <p className="m2-tl-period">{e.period}</p>
+            <p className="m2-tl-title">{e.credential}</p>
+            <p className="m2-tl-org">{e.institution}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function Highlights() {
+  return (
+    <section className="m2-section" id="highlights">
+      <SectionLabel>Highlights</SectionLabel>
+      <ul className="m2-highlights">
+        {resume.highlights.map((h, i) => {
+          const split = h.split(' — ');
+          const lead = split.length > 1 ? split[0] : h;
+          const rest = split.length > 1 ? split.slice(1).join(' — ') : null;
+          return (
+            <li key={i}>
+              <p className="m2-hl-lead">{lead}</p>
+              {rest && <p className="m2-hl-rest">{rest}</p>}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+/** A different gradient per card, derived from the project id rather than
+ *  invented per-project art — there is no screenshot asset to show instead. */
+const CARD_GRADIENTS = [
+  'linear-gradient(155deg, #3a2a1f 0%, #14100c 70%)',
+  'linear-gradient(155deg, #1f2a30 0%, #0c1012 70%)',
+  'linear-gradient(155deg, #2a2418 0%, #100e0a 70%)',
+  'linear-gradient(155deg, #241f2e 0%, #0d0b12 70%)',
+  'linear-gradient(155deg, #1f2e26 0%, #0b120d 70%)',
+];
+
+function Projects() {
+  const [openId, setOpenId] = useState(null);
+  return (
+    <section className="m2-section" id="projects">
+      <SectionLabel>Projects</SectionLabel>
+      <ul className="m2-project-list">
+        {projects.map((p, i) => {
           const open = openId === p.id;
           return (
-            <li key={p.id} className={`m-project${open ? ' is-open' : ''}`}>
+            <li key={p.id} className={`m2-project-card${open ? ' is-open' : ''}`}>
               <button
                 type="button"
-                className="m-project-head"
+                className="m2-project-thumb"
+                style={{ background: CARD_GRADIENTS[i % CARD_GRADIENTS.length] }}
                 onClick={() => setOpenId(open ? null : p.id)}
                 aria-expanded={open}
               >
-                <span>
-                  <span className="m-project-name">{p.name}</span>
-                  <span className="m-project-summary">{p.summary}</span>
+                <span className="m2-project-meta">
+                  <span>{`PROJECT /${String(i + 1).padStart(2, '0')}`}</span>
+                  <span>{p.kind}</span>
                 </span>
-                <span className="m-project-chevron" aria-hidden="true">{open ? '−' : '+'}</span>
               </button>
+              <button
+                type="button"
+                className="m2-project-head"
+                onClick={() => setOpenId(open ? null : p.id)}
+                aria-expanded={open}
+              >
+                <span className="m2-project-name">{p.name.split(' — ')[0]}</span>
+                <i>{open ? '−' : '→'}</i>
+              </button>
+              <p className="m2-project-summary">{p.summary}</p>
 
               {open && (
-                <div className="m-project-body">
-                  <p className="m-para">{p.description}</p>
-                  <ul className="m-chips">
-                    {p.stack.map((t) => <li key={t} className="m-chip">{t}</li>)}
+                <div className="m2-project-body">
+                  <p className="m2-justify">{p.description}</p>
+                  <ul className="m2-tags">
+                    {p.stack.map((t) => <li key={t}>{t}</li>)}
                   </ul>
                   {p.features?.length > 0 && (
-                    <ul className="m-bullets">
-                      {p.features.map((f, i) => <li key={i}>{f}</li>)}
+                    <ul className="m2-tl-detail">
+                      {p.features.map((f, i2) => <li key={i2}>{f}</li>)}
                     </ul>
                   )}
-                  <div className="m-project-actions">
+                  <div className="m2-project-actions">
                     {p.github ? (
                       <a className="m-btn m-btn-sm" href={p.github} target="_blank" rel="noreferrer noopener">
                         <IconGithub width="14" height="14" /> Source
@@ -262,87 +337,68 @@ function Projects() {
   );
 }
 
-function Skills() {
-  return (
-    <section className="m-section" id="skills">
-      <SectionHead icon={IconSkills} title="Skills" />
-      <div className="m-skill-groups">
-        {skills.map((g) => (
-          <div key={g.category} className="m-skill-group">
-            <p className="m-skill-category">{g.category}</p>
-            <ul className="m-chips">
-              {g.items.map((it) => (
-                <li key={it.name} className={`m-chip${it.level === 'core' ? ' is-core' : ''}`}>{it.name}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function Resume() {
+function ResumeCta() {
   const available = useResumeAvailable();
   return (
-    <section className="m-section" id="resume">
-      <SectionHead icon={IconDownload} title="Resume" />
-      <p className="m-hint">{resume.fileName} · updated {resume.updated}</p>
-      <ul className="m-bullets">
-        {resume.highlights.map((h, i) => <li key={i}>{h}</li>)}
-      </ul>
+    <section className="m2-section" id="resume">
+      <SectionLabel>Résumé</SectionLabel>
+      <p className="m2-justify">{resume.fileName} · updated {resume.updated}.</p>
       {available ? (
         <a className="m-btn m-btn-primary m-btn-block" href={resume.file} download={resume.fileName}>
-          <IconDownload width="16" height="16" /> Download résumé
+          Download résumé
         </a>
       ) : (
         <span className="m-btn m-btn-block is-disabled">
-          <IconDownload width="16" height="16" /> {available === null ? 'Checking…' : 'PDF not added yet'}
+          {available === null ? 'Checking…' : 'PDF not added yet'}
         </span>
       )}
     </section>
   );
 }
 
-function Contact() {
+const fmtIST = () => new Intl.DateTimeFormat('en-US', {
+  timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit', hour12: true,
+}).format(new Date());
+
+function LocalTime() {
+  const [text, setText] = useState(fmtIST);
+  useEffect(() => {
+    const id = window.setInterval(() => setText(fmtIST()), 30000);
+    return () => window.clearInterval(id);
+  }, []);
+  return <span>{text}</span>;
+}
+
+function ContactCard() {
+  const email = contact.find((c) => c.id === 'email');
   return (
-    <section className="m-section" id="contact">
-      <SectionHead icon={IconContact} title="Contact" />
-      <ul className="m-contact-list">
-        {contact.map((c) => (
-          <li key={c.id}>
-            {c.href ? (
-              <a href={c.href} target="_blank" rel="noreferrer noopener">
-                <span className="m-contact-label">{c.label}</span>
-                <span className="m-contact-value">{c.value}</span>
-              </a>
-            ) : (
-              <span className="is-placeholder">
-                <span className="m-contact-label">{c.label}</span>
-                <span className="m-contact-value">{c.value}</span>
-              </span>
-            )}
-          </li>
-        ))}
-      </ul>
+    <section className="m2-section" id="contact">
+      <div className="m2-contact-card">
+        <p className="m2-contact-title">Let's build something great together.</p>
+        <p className="m2-contact-sub">
+          {profile.location} — {profile.status.toLowerCase()}
+        </p>
+
+        {email?.href && (
+          <a className="m2-contact-cta" href={email.href}>
+            <i>→</i> Send me an email
+          </a>
+        )}
+
+        <p className="m2-contact-time">Local time <i>▸</i> <LocalTime /></p>
+
+        <SocialRow />
+      </div>
     </section>
   );
 }
 
 function Footer() {
   return (
-    <footer className="m-footer">
-      <a href="#top" className="m-back-top">Back to top</a>
-      <p>{profile.status}</p>
+    <footer className="m2-footer">
+      <span className="m2-mark" aria-hidden="true">{hero.brandMark}</span>
+      <p>© {new Date().getFullYear()} {profile.name}</p>
+      <p>Built by hand with React &amp; CSS.</p>
     </footer>
-  );
-}
-
-function SectionHead({ icon: Icon, title }) {
-  return (
-    <div className="m-section-head">
-      <span className="m-section-icon"><Icon width="16" height="16" /></span>
-      <h2>{title}</h2>
-    </div>
   );
 }
