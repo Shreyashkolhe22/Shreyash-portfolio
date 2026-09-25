@@ -483,23 +483,24 @@ cinematic/desktop tree is swapped for `components/MobileSite.jsx`: a normal
 single-page scrolling site, sourced from the same `data/portfolio.js` used by
 every desktop app, so nothing is maintained twice.
 
-It borrows the desktop's white-on-black identity and the hero's serif/sans
-pairing directly off the `--os-*`/`--serif`/`--sans` tokens already on
-`:root` — no separate palette. A translucent card over a blurred backdrop
-opens first ("Switch to a laptop" / "Continue on mobile"), dismissal
-remembered via `localStorage` so a repeat visitor isn't stopped twice.
+A translucent card over a blurred backdrop opens first ("Switch to a laptop" /
+"Continue on mobile"); dismissal is remembered via `localStorage`.
 
-The layout and type below it follow an editorial dark-portfolio reference:
-a stacked status/location meta row, a justified intro paragraph, a big
-name/role block with triangle bullets, `"LABEL ▸"` section heads, a flowing
-skills line (`coreTech` joined with em dashes, set large), and full-bleed
-project cards (a CSS gradient thumbnail per card — there is no screenshot
-asset — with `PROJECT /0N` + category, then name, summary, and an
-expand-in-place detail panel; action buttons render as disabled dashed pills
-when a project has no `github`/`demo` link, rather than being omitted).
-Experience, education, and résumé highlights follow the same timeline/label
-treatment. A closing contact card mirrors the reference's "let's build
-something together" panel, with a live Asia/Kolkata local-time readout.
+The page below follows an editorial dark-portfolio reference closely. Three
+typefaces, each with one job — Instrument Serif (light, uppercase: name,
+skills line, email link), Inter Tight (role, links, list titles, card
+headline) and JetBrains Mono (every label and running paragraph). They are
+injected from `MobileSite.jsx` rather than `index.html`, so the desktop never
+downloads them. Two column widths do the layout: a wide inset for labels,
+links, thumbnails and cards, and a much narrower one (with an indented first
+line) for running text. Spacing is deliberately generous, and the hero is one
+screen tall with its blocks spread down it.
+
+Where the reference has content this portfolio doesn't, nothing is invented:
+the portrait slot is a grained monogram panel, project thumbnails are
+gradient tiles with initials, and "awards" become the résumé highlights with
+`01/02/03` counts. The end card holds the headline, the email and résumé
+links, a live Asia/Kolkata local time, the social row and the footer.
 Styling lives in `styles/mobile.css`.
 
 ---

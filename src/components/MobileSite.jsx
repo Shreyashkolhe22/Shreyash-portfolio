@@ -1,43 +1,60 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  coreTech, contact, education, experience, hero,
-  profile, projects, resume,
+  contact, education, experience, profile, projects, resume,
 } from '../data/portfolio';
 import { useResumeAvailable } from '../hooks/useResumeAvailable';
-import { IconGithub, IconLink } from './Icons';
 
 /**
  * The mobile / narrow-viewport site.
  *
  * The cinematic room-to-monitor mechanic is a 16:9, mouse-and-scroll-wheel
  * composition — forcing it into a phone viewport is worse than not having it
- * at all, so this is a real, separately-designed fallback rather than a
- * shrunken version of the desktop. Same content, same data file.
+ * at all, so this is a separately designed fallback. Same content, same data
+ * file.
  *
- * The layout and type system here follow an editorial dark-portfolio
- * reference the visitor asked to match: a stacked meta row, a justified
- * intro paragraph, a big name/role block with triangle bullets, section
- * labels with a trailing arrow, a flowing skills line, and full-bleed
- * project cards. Colours stay on the site's own --os-* tokens rather than
- * the reference's exact grey, so the mobile site and the desktop OS still
- * read as one identity.
+ * Layout and type follow an editorial dark-portfolio reference: a light
+ * uppercase serif for the name and the skills line, a semibold grotesk for
+ * the role and links, and small monospace for every label and paragraph.
+ * Two column widths do the work — labels, links and cards sit at the wide
+ * inset, running text at a much narrower one — and the vertical spacing is
+ * deliberately generous.
  */
+
+/* Loaded from here rather than index.html so the desktop never pays for them. */
+const FONTS_HREF =
+  'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1'
+  + '&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap';
+
+/** Short discipline phrases, all drawn from the skills data. */
+const SKILL_LINE = [
+  'Java & Spring Boot',
+  'REST APIs & Microservices',
+  'Kafka & Redis',
+  'LangChain & RAG',
+  'AWS & Docker',
+];
+
 export default function MobileSite() {
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = FONTS_HREF;
+    document.head.appendChild(link);
+    return () => link.remove();
+  }, []);
+
   return (
-    <div className="mobile-site m2">
+    <div className="mobile-site m3">
       <LaptopNotice />
-      <TopBar />
       <Hero />
       <About />
       <Identity />
-      <SkillsFlow />
+      <Skills />
       <Experience />
       <Education />
       <Highlights />
       <Projects />
-      <ResumeCta />
-      <ContactCard />
-      <Footer />
+      <EndCard />
     </div>
   );
 }
@@ -89,41 +106,65 @@ function LaptopNotice() {
   );
 }
 
-function TopBar() {
-  const available = useResumeAvailable();
+/** A long, thin arrow — the reference never uses a chunky one. */
+function Arrow() {
   return (
-    <header className="m2-topbar">
-      <span className="m2-mark" aria-hidden="true">{hero.brandMark}</span>
-      <nav className="m2-topnav">
-        <a href="#projects">Work</a>
-        {available ? (
-          <a href={resume.file} download={resume.fileName}>Résumé</a>
-        ) : (
-          <a href="#resume">Résumé</a>
-        )}
-        <a href="#contact">Email me</a>
-      </nav>
-    </header>
+    <svg className="m3-arrow" viewBox="0 0 30 10" width="30" height="10" aria-hidden="true">
+      <path d="M0 5h28.5M24.5 1.2 28.6 5l-4.1 3.8" fill="none" stroke="currentColor" strokeWidth="1" />
+    </svg>
   );
 }
 
-function Hero() {
+function Emphasis({ text, phrase }) {
+  const i = text.indexOf(phrase);
+  if (i < 0) return text;
   return (
-    <section className="m2-hero">
-      <div className="m2-meta-row">
-        <span>{profile.status.replace('Open to ', '').replace(' roles', '')}</span>
-        <span>{profile.location.split(',')[0]}</span>
+    <>
+      {text.slice(0, i)}
+      <b>{phrase}</b>
+      {text.slice(i + phrase.length)}
+    </>
+  );
+}
+
+function Mark() {
+  return <span className="m3-mark" aria-hidden="true">SK</span>;
+}
+
+function Hero() {
+  const available = useResumeAvailable();
+  const parts = profile.location.split(',').map((s) => s.trim());
+  const place = `${parts[0]}, ${parts[parts.length - 1]}`;
+
+  return (
+    <section className="m3-hero">
+      <header className="m3-topbar">
+        <Mark />
+        <nav className="m3-topnav">
+          <a href="#projects">Work<sup>{String(projects.length).padStart(2, '0')}</sup></a>
+          {available && <a href={resume.file} download={resume.fileName}>Résumé</a>}
+          <a href="#contact">Email me</a>
+        </nav>
+      </header>
+
+      <div className="m3-meta">
+        <span>Open to roles</span>
+        <span>{place}</span>
       </div>
 
-      <p className="m2-intro">{profile.intro[0]}</p>
+      <p className="m3-copy m3-narrow">
+        <Emphasis text={profile.intro[0]} phrase="Java/Spring Boot" />
+      </p>
 
-      <div className="m2-name-block">
-        <h1 className="m2-name">{profile.name}</h1>
-        <p className="m2-role"><i>▴</i>{profile.role}<i>▴</i></p>
+      <h1 className="m3-name">
+        <span className="m3-name-serif">{profile.name}</span>
+        <span className="m3-name-role"><i>▲</i>{profile.role}<i>▲</i></span>
+      </h1>
+
+      <div>
+        <SocialRow />
+        <ScrollRule />
       </div>
-
-      <SocialRow />
-      <ScrollHint />
     </section>
   );
 }
@@ -132,7 +173,7 @@ function SocialRow() {
   const rows = contact.filter((c) => c.href);
   if (!rows.length) return null;
   return (
-    <nav className="m2-social-row">
+    <nav className="m3-social">
       {rows.map((c) => (
         <a key={c.id} href={c.href} target="_blank" rel="noreferrer noopener">{c.label}</a>
       ))}
@@ -140,8 +181,8 @@ function SocialRow() {
   );
 }
 
-/** Decorative scroll indicator — a thin track that fills with page progress. */
-function ScrollHint() {
+/** A thin rule with arrowheads at both ends whose fill tracks page progress. */
+function ScrollRule() {
   const fillRef = useRef(null);
   useEffect(() => {
     const onScroll = () => {
@@ -154,44 +195,52 @@ function ScrollHint() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
   return (
-    <div className="m2-scroll-hint" aria-hidden="true">
-      <span className="m2-scroll-hint-fill" ref={fillRef} />
+    <div className="m3-rule" aria-hidden="true">
+      <span className="m3-rule-track"><span className="m3-rule-fill" ref={fillRef} /></span>
     </div>
   );
 }
 
-function SectionLabel({ children }) {
-  return <p className="m2-label">{children} <i>▸</i></p>;
+function Label({ children }) {
+  return <p className="m3-label">{children}<i>▸</i></p>;
 }
 
 function About() {
   return (
-    <section className="m2-section" id="about">
-      <SectionLabel>About</SectionLabel>
-      {profile.intro.slice(1).map((para, i) => <p key={`about-${i}`} className="m2-justify">{para}</p>)}
-      <ul className="m2-tags">
-        {coreTech.map((t) => <li key={t}>{t}</li>)}
-      </ul>
+    <section className="m3-section" id="about">
+      <Label>About</Label>
+      <p className="m3-copy m3-narrow">
+        <Emphasis text={profile.intro[1]} phrase="readable code" />
+      </p>
     </section>
   );
 }
 
-/** Stands in for a portrait: no photo asset exists, so a monogram panel
- *  carries the same weight and rhythm in the layout without faking one. */
+/** Stands in for a portrait: no photo asset exists, so a grained monogram
+ *  panel carries the same weight and position instead of a fake one. */
 function Identity() {
   return (
-    <div className="m2-identity" aria-hidden="true">
-      <span>{hero.brandMark}</span>
+    <div className="m3-section m3-section-tight">
+      <div className="m3-identity m3-narrow" aria-hidden="true">
+        <span>SK</span>
+      </div>
     </div>
   );
 }
 
-function SkillsFlow() {
-  const line = [...new Set(coreTech)].join(' — ');
+function Skills() {
   return (
-    <section className="m2-section" id="skills">
-      <SectionLabel>Skills</SectionLabel>
-      <p className="m2-flow">{line}.</p>
+    <section className="m3-section" id="skills">
+      <Label>Skills</Label>
+      <p className="m3-flow m3-narrow">
+        {SKILL_LINE.map((s, i) => (
+          <span key={s}>
+            {i > 0 && <i className="m3-dash" aria-hidden="true" />}
+            {s}
+          </span>
+        ))}
+        .
+      </p>
     </section>
   );
 }
@@ -199,16 +248,16 @@ function SkillsFlow() {
 function Experience() {
   if (!experience.length) return null;
   return (
-    <section className="m2-section" id="experience">
-      <SectionLabel>Experience</SectionLabel>
-      <ol className="m2-timeline">
+    <section className="m3-section" id="experience">
+      <Label>Experience</Label>
+      <ol className="m3-list">
         {experience.map((e) => (
           <li key={e.id}>
-            <p className="m2-tl-period">{e.period}</p>
-            <p className="m2-tl-title">{e.role}</p>
-            <p className="m2-tl-org">{e.org}</p>
+            <p className="m3-list-when">{e.period}</p>
+            <p className="m3-list-title">{e.role}</p>
+            <p className="m3-list-sub">{e.org}</p>
             {e.detail?.length > 0 && (
-              <ul className="m2-tl-detail">
+              <ul className="m3-list-detail">
                 {e.detail.map((d, i) => <li key={i}>{d}</li>)}
               </ul>
             )}
@@ -221,14 +270,14 @@ function Experience() {
 
 function Education() {
   return (
-    <section className="m2-section" id="education">
-      <SectionLabel>Education</SectionLabel>
-      <ol className="m2-timeline">
+    <section className="m3-section" id="education">
+      <Label>Education</Label>
+      <ol className="m3-list">
         {education.map((e) => (
           <li key={e.id}>
-            <p className="m2-tl-period">{e.period}</p>
-            <p className="m2-tl-title">{e.credential}</p>
-            <p className="m2-tl-org">{e.institution}</p>
+            <p className="m3-list-when">{e.period}</p>
+            <p className="m3-list-title">{e.credential}</p>
+            <p className="m3-list-sub">{e.institution}</p>
           </li>
         ))}
       </ol>
@@ -236,19 +285,36 @@ function Education() {
   );
 }
 
+/** Splits a highlight into a bold lead and a dim continuation at the first
+ *  natural break, so each reads like the reference's two-line entries. */
+function splitHighlight(text) {
+  const breaks = [' — ', ' that ', ' with '];
+  let at = -1;
+  let len = 0;
+  for (const b of breaks) {
+    const i = text.indexOf(b);
+    if (i > 0 && (at < 0 || i < at)) { at = i; len = b.length; }
+  }
+  if (at < 0) return [text, ''];
+  const keep = text.slice(at, at + len).trim();
+  const rest = keep === '—' ? text.slice(at + len) : text.slice(at + 1);
+  return [`${text.slice(0, at)} —`, rest];
+}
+
 function Highlights() {
   return (
-    <section className="m2-section" id="highlights">
-      <SectionLabel>Highlights</SectionLabel>
-      <ul className="m2-highlights">
+    <section className="m3-section" id="highlights">
+      <Label>Highlights</Label>
+      <ul className="m3-list m3-list-counted">
         {resume.highlights.map((h, i) => {
-          const split = h.split(' — ');
-          const lead = split.length > 1 ? split[0] : h;
-          const rest = split.length > 1 ? split.slice(1).join(' — ') : null;
+          const [lead, rest] = splitHighlight(h);
           return (
             <li key={i}>
-              <p className="m2-hl-lead">{lead}</p>
-              {rest && <p className="m2-hl-rest">{rest}</p>}
+              <div>
+                <p className="m3-list-title">{lead}</p>
+                {rest && <p className="m3-list-sub">{rest}</p>}
+              </div>
+              <span className="m3-count">{String(i + 1).padStart(2, '0')}</span>
             </li>
           );
         })}
@@ -257,75 +323,61 @@ function Highlights() {
   );
 }
 
-/** A different gradient per card, derived from the project id rather than
- *  invented per-project art — there is no screenshot asset to show instead. */
-const CARD_GRADIENTS = [
-  'linear-gradient(155deg, #3a2a1f 0%, #14100c 70%)',
-  'linear-gradient(155deg, #1f2a30 0%, #0c1012 70%)',
-  'linear-gradient(155deg, #2a2418 0%, #100e0a 70%)',
-  'linear-gradient(155deg, #241f2e 0%, #0d0b12 70%)',
-  'linear-gradient(155deg, #1f2e26 0%, #0b120d 70%)',
-];
+/** Near-neutral tints — the reference is monochrome, and there is no
+ *  screenshot asset to show in its place. */
+const THUMB_TINTS = ['#3b3b3d', '#393c3d', '#3d3b39', '#3b3a3f', '#383d3a'];
+
+const initials = (name) => name.split(/[\s—-]+/).filter(Boolean).slice(0, 2)
+  .map((w) => w[0]).join('').toUpperCase();
 
 function Projects() {
   const [openId, setOpenId] = useState(null);
   return (
-    <section className="m2-section" id="projects">
-      <SectionLabel>Projects</SectionLabel>
-      <ul className="m2-project-list">
+    <section className="m3-section" id="projects">
+      <Label>Projects</Label>
+      <ul className="m3-projects">
         {projects.map((p, i) => {
           const open = openId === p.id;
+          const toggle = () => setOpenId(open ? null : p.id);
           return (
-            <li key={p.id} className={`m2-project-card${open ? ' is-open' : ''}`}>
+            <li key={p.id} className={`m3-project${open ? ' is-open' : ''}`}>
               <button
                 type="button"
-                className="m2-project-thumb"
-                style={{ background: CARD_GRADIENTS[i % CARD_GRADIENTS.length] }}
-                onClick={() => setOpenId(open ? null : p.id)}
+                className="m3-thumb"
+                style={{ '--tint': THUMB_TINTS[i % THUMB_TINTS.length] }}
+                onClick={toggle}
                 aria-expanded={open}
+                aria-label={`${p.name} — ${open ? 'collapse' : 'expand'}`}
               >
-                <span className="m2-project-meta">
-                  <span>{`PROJECT /${String(i + 1).padStart(2, '0')}`}</span>
-                  <span>{p.kind}</span>
-                </span>
+                <span>{initials(p.name)}</span>
               </button>
-              <button
-                type="button"
-                className="m2-project-head"
-                onClick={() => setOpenId(open ? null : p.id)}
-                aria-expanded={open}
-              >
-                <span className="m2-project-name">{p.name.split(' — ')[0]}</span>
-                <i>{open ? '−' : '→'}</i>
+
+              <div className="m3-project-meta">
+                <span>Project /{String(i + 1).padStart(2, '0')}</span>
+                <span>{p.kind}</span>
+              </div>
+
+              <button type="button" className="m3-project-title" onClick={toggle} aria-expanded={open}>
+                <span>{p.name.split(' — ')[0]}</span>
+                <Arrow />
               </button>
-              <p className="m2-project-summary">{p.summary}</p>
 
               {open && (
-                <div className="m2-project-body">
-                  <p className="m2-justify">{p.description}</p>
-                  <ul className="m2-tags">
-                    {p.stack.map((t) => <li key={t}>{t}</li>)}
-                  </ul>
+                <div className="m3-project-body">
+                  <p className="m3-body">{p.description}</p>
+                  <p className="m3-stack">{p.stack.join(' / ')}</p>
                   {p.features?.length > 0 && (
-                    <ul className="m2-tl-detail">
-                      {p.features.map((f, i2) => <li key={i2}>{f}</li>)}
+                    <ul className="m3-list-detail">
+                      {p.features.map((f, k) => <li key={k}>{f}</li>)}
                     </ul>
                   )}
-                  <div className="m2-project-actions">
-                    {p.github ? (
-                      <a className="m-btn m-btn-sm" href={p.github} target="_blank" rel="noreferrer noopener">
-                        <IconGithub width="14" height="14" /> Source
-                      </a>
-                    ) : (
-                      <span className="m-btn m-btn-sm is-disabled"><IconGithub width="14" height="14" /> Source not linked</span>
-                    )}
-                    {p.demo ? (
-                      <a className="m-btn m-btn-sm" href={p.demo} target="_blank" rel="noreferrer noopener">
-                        <IconLink width="14" height="14" /> Live demo
-                      </a>
-                    ) : (
-                      <span className="m-btn m-btn-sm is-disabled"><IconLink width="14" height="14" /> Demo not linked</span>
-                    )}
+                  <div className="m3-links">
+                    {p.github
+                      ? <a href={p.github} target="_blank" rel="noreferrer noopener"><Arrow /> Source</a>
+                      : <span className="is-off">Source not linked</span>}
+                    {p.demo
+                      ? <a href={p.demo} target="_blank" rel="noreferrer noopener"><Arrow /> Live demo</a>
+                      : <span className="is-off">Demo not linked</span>}
                   </div>
                 </div>
               )}
@@ -337,68 +389,59 @@ function Projects() {
   );
 }
 
-function ResumeCta() {
-  const available = useResumeAvailable();
+const timeParts = () => new Intl.DateTimeFormat('en-US', {
+  timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit', hour12: true,
+}).formatToParts(new Date());
+
+function LocalTime() {
+  const [parts, setParts] = useState(timeParts);
+  useEffect(() => {
+    const id = window.setInterval(() => setParts(timeParts()), 15000);
+    return () => window.clearInterval(id);
+  }, []);
+  const get = (t) => parts.find((p) => p.type === t)?.value ?? '';
   return (
-    <section className="m2-section" id="resume">
-      <SectionLabel>Résumé</SectionLabel>
-      <p className="m2-justify">{resume.fileName} · updated {resume.updated}.</p>
-      {available ? (
-        <a className="m-btn m-btn-primary m-btn-block" href={resume.file} download={resume.fileName}>
-          Download résumé
-        </a>
-      ) : (
-        <span className="m-btn m-btn-block is-disabled">
-          {available === null ? 'Checking…' : 'PDF not added yet'}
-        </span>
-      )}
-    </section>
+    <span className="m3-time-value">
+      {get('hour')}<b className="m3-colon">:</b>{get('minute')} {get('dayPeriod')}
+    </span>
   );
 }
 
-const fmtIST = () => new Intl.DateTimeFormat('en-US', {
-  timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit', hour12: true,
-}).format(new Date());
-
-function LocalTime() {
-  const [text, setText] = useState(fmtIST);
-  useEffect(() => {
-    const id = window.setInterval(() => setText(fmtIST()), 30000);
-    return () => window.clearInterval(id);
-  }, []);
-  return <span>{text}</span>;
-}
-
-function ContactCard() {
+function EndCard() {
+  const available = useResumeAvailable();
   const email = contact.find((c) => c.id === 'email');
+  const city = profile.location.split(',')[0].trim();
+
   return (
-    <section className="m2-section" id="contact">
-      <div className="m2-contact-card">
-        <p className="m2-contact-title">Let's build something great together.</p>
-        <p className="m2-contact-sub">
-          {profile.location} — {profile.status.toLowerCase()}
-        </p>
+    <section className="m3-section m3-section-end" id="contact">
+      <div className="m3-card">
+        <h2 className="m3-card-title">
+          Let&rsquo;s build<br />something great<br />together <i>▲</i>
+        </h2>
+        <p className="m3-mono-sm">Based in {city} — open to roles</p>
 
         {email?.href && (
-          <a className="m2-contact-cta" href={email.href}>
-            <i>→</i> Send me an email
+          <a className="m3-cta" href={email.href}><Arrow /> Send me an email</a>
+        )}
+        {available && (
+          <a className="m3-cta m3-cta-quiet" href={resume.file} download={resume.fileName}>
+            <Arrow /> Download résumé
           </a>
         )}
 
-        <p className="m2-contact-time">Local time <i>▸</i> <LocalTime /></p>
+        <p className="m3-time"><span>Local time</span><LocalTime /></p>
 
+        <hr className="m3-hr" />
         <SocialRow />
+
+        <div className="m3-card-foot">
+          <Mark />
+          <p>
+            © {new Date().getFullYear()} {profile.name}
+            <br />Made with <span aria-label="love">♥</span> by {profile.name}.
+          </p>
+        </div>
       </div>
     </section>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="m2-footer">
-      <span className="m2-mark" aria-hidden="true">{hero.brandMark}</span>
-      <p>© {new Date().getFullYear()} {profile.name}</p>
-      <p>Built by hand with React &amp; CSS.</p>
-    </footer>
   );
 }

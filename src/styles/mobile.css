@@ -6,23 +6,38 @@
    mouse/scroll-wheel shaped, and forcing it into a phone viewport would be
    worse than not having it. Same content, same data file, real CSS.
 
-   Layout and type follow an editorial dark-portfolio reference: a stacked
-   meta row, a justified intro paragraph, a big name/role block with
-   triangle bullets, "LABEL ▸" section heads, a flowing skills line, and
-   full-bleed project cards. Colour stays on the site's own os/serif/sans
-   custom properties (already on :root) rather than the reference's exact
-   grey, so the mobile site and the desktop OS still read as one identity.
+   Follows an editorial dark-portfolio reference. Three typefaces, each with
+   one job:
+     serif  — light, uppercase: the name, the skills line, the email link
+     sans   — the role, links, list titles, the card headline
+     mono   — every label, every running paragraph, counts
+   Two column widths: the WIDE inset for labels, links, cards and the
+   thumbnails, and the NARROW inset for running text. Vertical spacing is
+   large on purpose; the reference is airy and this is what makes it read so.
    ========================================================================== */
 
 .mobile-site {
+  --m3-bg: #171717;
+  --m3-ink: #f1f1f1;
+  --m3-dim: #8d8d8d;
+  --m3-faint: #6a6a6a;
+  --m3-line: rgb(255 255 255 / 14%);
+  --m3-serif: 'Instrument Serif', 'Cormorant Garamond', Georgia, serif;
+  --m3-sans: 'Inter Tight', 'Inter', system-ui, -apple-system, sans-serif;
+  --m3-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
   min-height: 100vh;
-  background: var(--os-bg);
-  color: var(--os-text);
-  font-family: var(--sans);
-  line-height: 1.6;
+  background: var(--m3-bg);
+  color: var(--m3-ink);
+  font-family: var(--m3-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
-.mobile-site :is(h1, h2, h3) { margin: 0; }
+.mobile-site :where(h1, h2, h3, p, ol, ul) { margin: 0; padding: 0; }
+.mobile-site :where(ol, ul) { list-style: none; }
+.mobile-site a { color: inherit; text-decoration: none; }
+.mobile-site button { font: inherit; color: inherit; }
 
 /* ---- laptop notice ---------------------------------------------------------
    A translucent card over a blurred backdrop, up before anything else is
@@ -74,8 +89,6 @@
   to { opacity: 1; }
 }
 
-/* ---- shared buttons (laptop card CTA, résumé download, project links) ---- */
-
 .m-btn {
   display: inline-flex;
   align-items: center;
@@ -101,393 +114,505 @@
 
 .m-btn-block { width: 100%; margin-top: 14px; }
 
-.m-btn-sm { padding: 8px 14px; font-size: 12.5px; border-radius: 999px; }
+/* ---- shared pieces ---------------------------------------------------------- */
 
-.m-btn.is-disabled {
-  opacity: 0.45;
-  border-style: dashed;
-  cursor: not-allowed;
-}
+.m3-narrow { margin-inline: 9.5%; }
 
-/* ---- top bar ---------------------------------------------------------------
-   Logo left, three plain-text links stacked right — "Work / Résumé / Email
-   me" in the reference. No icons, no pills: the reference nav is just type. */
+.m3-arrow { display: block; flex: none; overflow: visible; }
 
-.m2-topbar {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 22px 20px 0;
-}
-
-.m2-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 1px solid var(--os-line);
-  font-family: var(--serif);
+.m3-mark {
+  font-family: var(--m3-serif);
   font-style: italic;
-  font-size: 12px;
-  color: var(--os-text);
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: 0.01em;
 }
 
-.m2-topnav {
+/* Running text: monospace, uppercase, justified, first line indented, dim —
+   with one phrase lifted to full ink. */
+.m3-copy {
+  font-family: var(--m3-mono);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.34;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  text-align: justify;
+  text-indent: 15%;
+  color: var(--m3-dim);
+}
+
+.m3-copy b { font-weight: 500; color: var(--m3-ink); }
+
+/* ---- hero -------------------------------------------------------------------
+   One screen tall, blocks spread down it: nav, meta row, intro, name, links. */
+
+.m3-hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  min-height: 100vh;
+  min-height: 100svh;
+  max-width: 560px;
+  margin-inline: auto;
+  padding: 24px 5% 64px;
+}
+
+.m3-topbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: start;
+}
+
+.m3-topbar .m3-mark { grid-column: 2; }
+
+.m3-topnav {
+  grid-column: 3;
+  justify-self: end;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 7px;
+  gap: 21px;
+  padding-right: 3%;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--m3-ink);
 }
 
-.m2-topnav a:first-child {
-  font-weight: 700;
-  color: var(--os-text);
+.m3-topnav sup {
+  margin-left: 2px;
+  font-family: var(--m3-mono);
+  font-size: 7px;
+  vertical-align: top;
+  position: relative;
+  top: -3px;
+  color: var(--m3-dim);
 }
 
-.m2-topnav a {
-  font-size: 12.5px;
-  color: var(--os-text-dim);
-  text-decoration: none;
-}
-
-/* ---- hero ------------------------------------------------------------------ */
-
-.m2-hero {
-  padding: 34px 20px 30px;
-  max-width: 640px;
-  margin: 0 auto;
-}
-
-.m2-meta-row {
+.m3-meta {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 26px;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--os-text-faint);
-}
-
-.m2-intro {
-  margin: 0 0 34px;
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  line-height: 1.75;
-  text-align: justify;
-  text-transform: uppercase;
-  color: var(--os-text-dim);
-}
-
-.m2-name-block { text-align: center; }
-
-.m2-name {
-  font-size: clamp(30px, 9vw, 40px);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
-  color: #fff;
-}
-
-.m2-role {
-  margin: 6px 0 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  font-size: clamp(15px, 4.4vw, 19px);
-  font-weight: 800;
+  margin-inline: 9.5%;
+  font-family: var(--m3-mono);
+  font-size: 9.5px;
+  font-weight: 500;
   letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--m3-dim);
+}
+
+/* Name: light serif, left. Role: semibold sans, tucked right under it and
+   nudged in, capped with a small triangle at each end. */
+.m3-name { display: block; }
+
+.m3-name-serif {
+  display: block;
+  font-family: var(--m3-serif);
+  font-size: clamp(28px, 8.7vw, 40px);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--m3-ink);
+}
+
+.m3-name-role {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  margin-top: 1px;
+  padding-left: 7%;
+  font-family: var(--m3-sans);
+  font-size: clamp(20px, 6.7vw, 30px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
   color: #fff;
 }
 
-.m2-role i { font-style: normal; font-size: 9px; opacity: 0.55; }
+.m3-name-role i,
+.m3-card-title i {
+  font-style: normal;
+  font-size: 0.3em;
+  line-height: 1;
+  color: inherit;
+}
 
-.m2-social-row {
+.m3-name-role i { position: relative; top: -0.12em; }
+
+.m3-social {
   display: flex;
-  justify-content: center;
-  gap: 22px;
-  margin: 24px 0 0;
+  justify-content: space-between;
+  padding-inline: 1%;
+  font-family: var(--m3-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--m3-ink);
 }
 
-.m2-social-row a {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--os-text-dim);
-  text-decoration: none;
+.m3-rule {
+  position: relative;
+  height: 9px;
+  margin: 34px 1% 0;
 }
 
-.m2-social-row a:hover { color: var(--os-text); }
+.m3-rule::before,
+.m3-rule::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  border: 3px solid transparent;
+  transform: translateY(-50%);
+}
 
-.m2-scroll-hint {
-  width: 100%;
+.m3-rule::before { left: 0; border-right: 6px solid var(--m3-faint); border-left: 0; }
+.m3-rule::after { right: 0; border-left: 6px solid var(--m3-faint); border-right: 0; }
+
+.m3-rule-track {
+  position: absolute;
+  left: 9px;
+  right: 9px;
+  top: 50%;
   height: 1px;
-  margin-top: 26px;
-  background: var(--os-line-soft);
+  background: rgb(255 255 255 / 22%);
   overflow: hidden;
 }
 
-.m2-scroll-hint-fill {
+.m3-rule-fill {
   display: block;
   width: 100%;
   height: 100%;
-  background: var(--os-text-dim);
+  background: var(--m3-ink);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 120ms linear;
 }
 
-/* ---- section shell + label -------------------------------------------------
-   "ABOUT ▸" — the reference's recurring section head: a small uppercase
-   label with a trailing arrow, nothing heavier. */
+/* ---- sections ---------------------------------------------------------------- */
 
-.m2-section {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 30px 20px;
-  border-top: 1px solid var(--os-line-soft);
+.m3-section {
+  max-width: 560px;
+  margin-inline: auto;
+  padding: 92px 5% 0;
 }
 
-.m2-label {
-  margin: 0 0 14px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+.m3-section-tight { padding-top: 84px; }
+
+.m3-label {
+  margin-bottom: 52px;
+  font-family: var(--m3-mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--os-text-faint);
+  color: #d6d6d6;
 }
 
-.m2-label i { font-style: normal; opacity: 0.7; }
+.m3-label i { margin-left: 5px; font-style: normal; font-size: 8px; }
 
-.m2-justify {
-  margin: 0 0 10px;
-  font-size: 13.5px;
-  line-height: 1.7;
-  text-align: justify;
-  color: var(--os-text-dim);
-}
+/* ---- identity panel ---------------------------------------------------------- */
 
-.m2-justify:last-child { margin-bottom: 0; }
-
-.m2-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 14px;
-  margin: 14px 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: 11.5px;
-  color: var(--os-text-faint);
-}
-
-/* ---- identity panel (stands in for a portrait) ----------------------------- */
-
-.m2-identity {
+.m3-identity {
+  position: relative;
   display: grid;
   place-items: center;
-  height: 46vw;
-  max-height: 220px;
-  margin: 0 20px;
-  border-radius: 14px;
-  border: 1px solid var(--os-line-soft);
+  aspect-ratio: 238 / 291;
+  overflow: hidden;
+  border-radius: 7px;
   background:
-    radial-gradient(circle at 30% 20%, rgb(255 255 255 / 6%), transparent 60%),
-    linear-gradient(160deg, #1b1b1f 0%, #0a0a0b 100%);
+    radial-gradient(110% 80% at 30% 18%, rgb(255 255 255 / 11%), transparent 62%),
+    linear-gradient(165deg, #2c2c2e 0%, #161617 100%);
 }
 
-.m2-identity span {
-  font-family: var(--serif);
+/* The reference portrait has a fine vertical line texture; this borrows it. */
+.m3-identity::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, rgb(255 255 255 / 3.5%) 0 1px, transparent 1px 3px);
+  pointer-events: none;
+}
+
+.m3-identity span {
+  font-family: var(--m3-serif);
   font-style: italic;
-  font-size: 15vw;
-  color: rgb(255 255 255 / 10%);
+  font-size: clamp(90px, 30vw, 150px);
+  line-height: 1;
+  color: rgb(255 255 255 / 13%);
 }
 
-/* ---- skills flow ------------------------------------------------------------ */
+/* ---- skills line -------------------------------------------------------------- */
 
-.m2-flow {
-  margin: 0;
-  font-family: var(--serif);
-  font-size: clamp(22px, 6.6vw, 28px);
-  font-weight: 600;
-  line-height: 1.28;
-  color: var(--os-text);
-}
-
-/* ---- timeline (experience + education) --------------------------------- */
-
-.m2-timeline { margin: 0; padding: 0; list-style: none; }
-
-.m2-timeline li { padding-bottom: 20px; }
-.m2-timeline li:last-child { padding-bottom: 0; }
-
-.m2-tl-period {
-  margin: 0;
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
+.m3-flow {
+  font-family: var(--m3-serif);
+  font-size: clamp(20px, 6.4vw, 26px);
+  font-weight: 400;
+  line-height: 1.34;
   text-transform: uppercase;
-  color: var(--os-text-faint);
+  color: var(--m3-ink);
 }
 
-.m2-tl-title { margin: 4px 0 0; font-size: 15.5px; font-weight: 700; color: var(--os-text); }
-.m2-tl-org { margin: 2px 0 0; font-size: 12.5px; color: var(--os-text-dim); }
+.m3-dash {
+  display: inline-block;
+  width: 1.15em;
+  height: 1px;
+  margin: 0 0.3em;
+  vertical-align: 0.28em;
+  background: currentColor;
+  opacity: 0.85;
+}
 
-.m2-tl-detail {
-  margin: 8px 0 0;
-  padding-left: 15px;
+/* ---- lists: experience, education, highlights ---------------------------- */
+
+.m3-list > li { padding-bottom: 30px; }
+.m3-list > li:last-child { padding-bottom: 0; }
+
+.m3-list-counted > li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+}
+
+.m3-list-when {
+  margin-bottom: 8px;
+  font-family: var(--m3-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--m3-faint);
+}
+
+.m3-list-title { font-size: 12.5px; font-weight: 600; line-height: 1.45; color: #fff; }
+.m3-list-sub { margin-top: 1px; font-size: 12.5px; font-weight: 400; line-height: 1.5; color: var(--m3-dim); }
+
+.m3-list-detail {
+  margin-top: 12px;
   font-size: 12.5px;
-  line-height: 1.6;
-  color: var(--os-text-dim);
+  line-height: 1.55;
+  color: var(--m3-dim);
 }
 
-.m2-tl-detail li { margin-bottom: 4px; }
+.m3-list-detail li { position: relative; padding-left: 16px; margin-bottom: 6px; }
+.m3-list-detail li::before { content: '—'; position: absolute; left: 0; color: var(--m3-faint); }
 
-/* ---- highlights (the reference's "Awards" slot) ------------------------- */
-
-.m2-highlights { margin: 0; padding: 0; list-style: none; }
-
-.m2-highlights li {
-  padding: 12px 0;
-  border-top: 1px solid var(--os-line-soft);
+.m3-count {
+  align-self: start;
+  font-family: var(--m3-mono);
+  font-size: 10px;
+  color: var(--m3-faint);
 }
 
-.m2-highlights li:first-child { border-top: 0; padding-top: 0; }
+/* ---- projects ------------------------------------------------------------------ */
 
-.m2-hl-lead { margin: 0; font-size: 13.5px; font-weight: 700; color: var(--os-text); }
-.m2-hl-rest { margin: 3px 0 0; font-size: 12.5px; color: var(--os-text-dim); }
+.m3-project { margin-bottom: 64px; }
+.m3-project:last-child { margin-bottom: 0; }
 
-/* ---- projects, full-bleed cards ------------------------------------------- */
-
-.m2-project-list { margin: 0; padding: 0; list-style: none; }
-
-.m2-project-card { margin-bottom: 28px; }
-.m2-project-card:last-child { margin-bottom: 0; }
-
-.m2-project-thumb {
-  display: block;
+.m3-thumb {
+  position: relative;
+  display: grid;
+  place-items: center;
   width: 100%;
-  height: 150px;
-  padding: 12px 14px;
-  border: 1px solid var(--os-line-soft);
-  border-radius: 12px;
-  background: transparent;
+  aspect-ratio: 302 / 255;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 7px;
+  background:
+    radial-gradient(120% 90% at 28% 16%, var(--tint) 0%, #1d1d1e 58%, #111112 100%);
   cursor: pointer;
 }
 
-.m2-project-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgb(255 255 255 / 55%);
+.m3-thumb::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, rgb(255 255 255 / 3%) 0 1px, transparent 1px 3px);
+  pointer-events: none;
 }
 
-.m2-project-head {
-  width: 100%;
+.m3-thumb span {
+  font-family: var(--m3-serif);
+  font-style: italic;
+  font-size: clamp(72px, 24vw, 118px);
+  line-height: 1;
+  color: rgb(255 255 255 / 14%);
+}
+
+.m3-project-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  font-family: var(--m3-mono);
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--m3-dim);
+}
+
+.m3-project-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-top: 14px;
-  padding: 0;
+  gap: 14px;
+  width: 100%;
+  margin-top: 22px;
+  padding: 0 0 22px;
   border: 0;
+  border-bottom: 1px solid var(--m3-line);
   background: transparent;
-  color: inherit;
-  font: inherit;
   text-align: left;
+  font-family: var(--m3-sans);
+  font-size: clamp(22px, 6.8vw, 27px);
+  font-weight: 500;
+  line-height: 1.1;
+  color: #fff;
   cursor: pointer;
 }
 
-.m2-project-name { font-size: 17px; font-weight: 700; color: var(--os-text); }
-.m2-project-head i { font-style: normal; font-size: 16px; color: var(--os-text-dim); }
+.m3-project-title .m3-arrow { transition: transform 240ms ease; }
+.m3-project.is-open .m3-project-title .m3-arrow { transform: rotate(90deg); }
 
-.m2-project-summary { margin: 6px 0 0; font-size: 12.5px; color: var(--os-text-dim); }
+.m3-project-body { padding-top: 22px; }
 
-.m2-project-body { margin-top: 14px; }
-.m2-project-body .m2-justify { margin-bottom: 12px; }
-
-.m2-project-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-
-/* ---- contact card ------------------------------------------------------- */
-
-.m2-contact-card {
-  padding: 26px 22px;
-  border-radius: 16px;
-  border: 1px solid var(--os-line);
-  background: var(--os-panel);
-  text-align: center;
+.m3-body {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--m3-dim);
 }
 
-.m2-contact-title {
-  margin: 0 0 10px;
-  font-family: var(--serif);
-  font-size: 22px;
-  font-weight: 600;
+.m3-stack {
+  margin-top: 16px;
+  font-family: var(--m3-mono);
+  font-size: 9.5px;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--m3-faint);
+}
+
+.m3-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  margin-top: 22px;
+  font-family: var(--m3-serif);
+  font-size: 19px;
+  text-transform: uppercase;
+}
+
+.m3-links a { display: inline-flex; align-items: center; gap: 9px; color: var(--m3-ink); }
+.m3-links .is-off { color: var(--m3-faint); font-size: 15px; }
+
+/* ---- end card ---------------------------------------------------------------- */
+
+.m3-section-end { padding-bottom: 48px; }
+
+.m3-card {
+  padding: 40px 11.5% 34px;
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: 10px;
+}
+
+.m3-card-title {
+  font-family: var(--m3-sans);
+  font-size: clamp(26px, 8vw, 34px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.012em;
   color: #fff;
 }
 
-.m2-contact-sub {
-  margin: 0 0 20px;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+.m3-card-title i { margin-left: 3px; vertical-align: 0.06em; }
+
+.m3-mono-sm {
+  margin-top: 24px;
+  font-family: var(--m3-mono);
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--os-text-faint);
+  color: var(--m3-dim);
 }
 
-.m2-contact-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--os-text);
-  text-decoration: none;
-}
-
-.m2-contact-cta i { font-style: normal; }
-
-.m2-contact-time {
-  margin: 18px 0 0;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--os-text-faint);
-}
-
-.m2-contact-time i { font-style: normal; opacity: 0.7; }
-
-.m2-contact-card .m2-social-row { margin-top: 22px; }
-
-/* ---- footer --------------------------------------------------------------- */
-
-.m2-footer {
+.m3-cta {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 10px;
-  padding: 36px 20px 48px;
-  text-align: center;
-  font-size: 11.5px;
-  color: var(--os-text-faint);
+  margin-top: 58px;
+  font-family: var(--m3-serif);
+  font-size: clamp(19px, 5.8vw, 23px);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--m3-ink);
 }
 
-.m2-footer p { margin: 0; }
+.m3-cta + .m3-cta { margin-top: 16px; }
+.m3-cta-quiet { font-size: clamp(15px, 4.6vw, 18px); color: var(--m3-dim); }
 
-/* ---- slightly roomier at the tablet-portrait end of this range ------------- */
+.m3-time {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 26px;
+  font-family: var(--m3-mono);
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--m3-dim);
+}
+
+.m3-time-value {
+  font-family: var(--m3-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--m3-ink);
+}
+
+.m3-colon { font-weight: 500; animation: m3-blink 1.6s steps(1) infinite; }
+
+@keyframes m3-blink { 50% { opacity: 0.15; } }
+
+.m3-hr {
+  height: 0;
+  margin: 40px 0 26px;
+  border: 0;
+  border-top: 1px solid var(--m3-line);
+}
+
+.m3-card .m3-social { padding-inline: 0; }
+
+.m3-card-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 50px;
+}
+
+.m3-card-foot p {
+  font-size: 8.5px;
+  line-height: 1.55;
+  text-align: right;
+  color: var(--m3-faint);
+}
+
+/* ---- tablet-portrait: a touch more air on the sides ------------------------- */
 
 @media (min-width: 560px) {
-  .m2-hero, .m2-section { padding-left: 28px; padding-right: 28px; }
-  .m2-identity { margin-left: 28px; margin-right: 28px; }
+  .m3-hero, .m3-section { padding-inline: 32px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mobile-site * { scroll-behavior: auto; }
   .m-laptop-overlay { animation: none; }
-  .m2-scroll-hint-fill { transition: none; }
+  .m3-rule-fill { transition: none; }
+  .m3-colon { animation: none; }
+  .m3-project-title .m3-arrow { transition: none; }
 }
