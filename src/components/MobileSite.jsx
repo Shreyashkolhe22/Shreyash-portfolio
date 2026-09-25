@@ -216,13 +216,18 @@ function About() {
   );
 }
 
-/** Stands in for a portrait: no photo asset exists, so a grained monogram
- *  panel carries the same weight and position instead of a fake one. */
 function Identity() {
   return (
     <div className="m3-section m3-section-tight">
-      <div className="m3-identity m3-narrow" aria-hidden="true">
-        <span>SK</span>
+      <div className="m3-identity m3-narrow">
+        <img
+          src="/assets/profile.webp"
+          alt={`Portrait of ${profile.name}`}
+          width="820"
+          height="994"
+          loading="lazy"
+          decoding="async"
+        />
       </div>
     </div>
   );
@@ -323,13 +328,6 @@ function Highlights() {
   );
 }
 
-/** Near-neutral tints — the reference is monochrome, and there is no
- *  screenshot asset to show in its place. */
-const THUMB_TINTS = ['#3b3b3d', '#393c3d', '#3d3b39', '#3b3a3f', '#383d3a'];
-
-const initials = (name) => name.split(/[\s—-]+/).filter(Boolean).slice(0, 2)
-  .map((w) => w[0]).join('').toUpperCase();
-
 function Projects() {
   const [openId, setOpenId] = useState(null);
   return (
@@ -341,17 +339,6 @@ function Projects() {
           const toggle = () => setOpenId(open ? null : p.id);
           return (
             <li key={p.id} className={`m3-project${open ? ' is-open' : ''}`}>
-              <button
-                type="button"
-                className="m3-thumb"
-                style={{ '--tint': THUMB_TINTS[i % THUMB_TINTS.length] }}
-                onClick={toggle}
-                aria-expanded={open}
-                aria-label={`${p.name} — ${open ? 'collapse' : 'expand'}`}
-              >
-                <span>{initials(p.name)}</span>
-              </button>
-
               <div className="m3-project-meta">
                 <span>Project /{String(i + 1).padStart(2, '0')}</span>
                 <span>{p.kind}</span>

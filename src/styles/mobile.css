@@ -312,35 +312,20 @@
 
 .m3-label i { margin-left: 5px; font-style: normal; font-size: 8px; }
 
-/* ---- identity panel ---------------------------------------------------------- */
+/* ---- identity panel (portrait) -------------------------------------------- */
 
 .m3-identity {
-  position: relative;
-  display: grid;
-  place-items: center;
   aspect-ratio: 238 / 291;
   overflow: hidden;
   border-radius: 7px;
-  background:
-    radial-gradient(110% 80% at 30% 18%, rgb(255 255 255 / 11%), transparent 62%),
-    linear-gradient(165deg, #2c2c2e 0%, #161617 100%);
+  background: #1d1d1e;
 }
 
-/* The reference portrait has a fine vertical line texture; this borrows it. */
-.m3-identity::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(90deg, rgb(255 255 255 / 3.5%) 0 1px, transparent 1px 3px);
-  pointer-events: none;
-}
-
-.m3-identity span {
-  font-family: var(--m3-serif);
-  font-style: italic;
-  font-size: clamp(90px, 30vw, 150px);
-  line-height: 1;
-  color: rgb(255 255 255 / 13%);
+.m3-identity img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* ---- skills line -------------------------------------------------------------- */
@@ -406,45 +391,13 @@
 
 /* ---- projects ------------------------------------------------------------------ */
 
-.m3-project { margin-bottom: 64px; }
+.m3-project { margin-bottom: 44px; }
 .m3-project:last-child { margin-bottom: 0; }
-
-.m3-thumb {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 100%;
-  aspect-ratio: 302 / 255;
-  padding: 0;
-  overflow: hidden;
-  border: 0;
-  border-radius: 7px;
-  background:
-    radial-gradient(120% 90% at 28% 16%, var(--tint) 0%, #1d1d1e 58%, #111112 100%);
-  cursor: pointer;
-}
-
-.m3-thumb::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(90deg, rgb(255 255 255 / 3%) 0 1px, transparent 1px 3px);
-  pointer-events: none;
-}
-
-.m3-thumb span {
-  font-family: var(--m3-serif);
-  font-style: italic;
-  font-size: clamp(72px, 24vw, 118px);
-  line-height: 1;
-  color: rgb(255 255 255 / 14%);
-}
 
 .m3-project-meta {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 14px;
   font-family: var(--m3-mono);
   font-size: 8.5px;
   font-weight: 500;
@@ -459,7 +412,7 @@
   justify-content: space-between;
   gap: 14px;
   width: 100%;
-  margin-top: 22px;
+  margin-top: 16px;
   padding: 0 0 22px;
   border: 0;
   border-bottom: 1px solid var(--m3-line);

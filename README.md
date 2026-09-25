@@ -496,10 +496,11 @@ links, thumbnails and cards, and a much narrower one (with an indented first
 line) for running text. Spacing is deliberately generous, and the hero is one
 screen tall with its blocks spread down it.
 
-Where the reference has content this portfolio doesn't, nothing is invented:
-the portrait slot is a grained monogram panel, project thumbnails are
-gradient tiles with initials, and "awards" become the résumé highlights with
-`01/02/03` counts. The end card holds the headline, the email and résumé
+The portrait slot shows `public/assets/profile.png`, served to phones as a
+compressed `profile.webp` (~22 KB instead of 1.5 MB) — re-export that copy if
+you swap the photo. Projects are text-only rows (`PROJECT /0N`, category,
+name, arrow) that expand in place, and "awards" become the résumé highlights
+with `01/02/03` counts. The end card holds the headline, the email and résumé
 links, a live Asia/Kolkata local time, the social row and the footer.
 Styling lives in `styles/mobile.css`.
 
