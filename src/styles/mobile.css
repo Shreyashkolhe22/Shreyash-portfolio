@@ -121,11 +121,9 @@
 .m3-arrow { display: block; flex: none; overflow: visible; }
 
 .m3-mark {
-  font-family: var(--m3-serif);
-  font-style: italic;
-  font-size: 22px;
-  line-height: 1;
-  letter-spacing: 0.01em;
+  display: block;
+  width: 38px;
+  height: auto;
 }
 
 /* Running text: monospace, uppercase, justified, first line indented, dim —

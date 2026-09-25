@@ -125,7 +125,16 @@ function Emphasis({ text, phrase }) {
 }
 
 function Mark() {
-  return <span className="m3-mark" aria-hidden="true">SK</span>;
+  return (
+    <img
+      className="m3-mark"
+      src="/assets/logo-mark.png"
+      alt=""
+      width="168"
+      height="128"
+      decoding="async"
+    />
+  );
 }
 
 function Hero() {
