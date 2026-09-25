@@ -484,7 +484,7 @@ single-page scrolling site, sourced from the same `data/portfolio.js` used by
 every desktop app, so nothing is maintained twice.
 
 A translucent card over a blurred backdrop opens first ("Switch to a laptop" /
-"Continue on mobile"); dismissal is remembered via `localStorage`.
+"Continue on mobile"); it is shown on every visit and reload, never remembered.
 
 The page below follows an editorial dark-portfolio reference closely. Three
 typefaces, each with one job — Instrument Serif (light, uppercase: name,

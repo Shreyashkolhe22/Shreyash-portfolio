@@ -61,19 +61,19 @@ export default function MobileSite() {
 
 /* -------------------------------------------------------------------------- */
 
-const LAPTOP_NOTICE_KEY = 'sk-laptop-notice-dismissed';
-
 /**
  * The room-to-monitor mechanic and the desktop OS inside it only exist on a
  * laptop — this is the one place that says so, before anything else on the
  * page is usable. A translucent card over a blurred backdrop, not a full
  * takeover: "Continue on mobile" sits right alongside the suggestion to
  * switch, because the mobile site is a real fallback, not an apology.
+ *
+ * Deliberately NOT remembered: it appears on every visit and every reload, so
+ * a returning visitor is told again rather than silently dropped into the
+ * plain version.
  */
 function LaptopNotice() {
-  const [dismissed, setDismissed] = useState(() => {
-    try { return localStorage.getItem(LAPTOP_NOTICE_KEY) === '1'; } catch { return false; }
-  });
+  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     if (dismissed) return undefined;
@@ -84,10 +84,7 @@ function LaptopNotice() {
 
   if (dismissed) return null;
 
-  const dismiss = () => {
-    setDismissed(true);
-    try { localStorage.setItem(LAPTOP_NOTICE_KEY, '1'); } catch { /* private mode */ }
-  };
+  const dismiss = () => setDismissed(true);
 
   return (
     <div className="m-laptop-overlay" role="dialog" aria-modal="true" aria-label="Best viewed on a laptop">
