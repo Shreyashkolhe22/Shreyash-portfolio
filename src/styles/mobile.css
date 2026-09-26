@@ -154,7 +154,7 @@
   min-height: 100svh;
   max-width: 560px;
   margin-inline: auto;
-  padding: 24px 5% 64px;
+  padding: 24px 5% 20px;
 }
 
 .m3-topbar {
@@ -297,6 +297,10 @@
 }
 
 .m3-section-tight { padding-top: 84px; }
+
+/* The links/rule end the first screen and About follows straight on; the full
+   section gap on top of the hero's own bottom padding left it stranded. */
+.m3-hero + .m3-section { padding-top: 28px; }
 
 .m3-label {
   margin-bottom: 52px;
